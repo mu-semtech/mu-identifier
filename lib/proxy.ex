@@ -8,8 +8,9 @@ defmodule Proxy do
   plug :dispatch
 
   def start(_argv) do
-    IO.puts "Running Proxy with Cowboy on http://localhost:4000"
-    Plug.Adapters.Cowboy.http __MODULE__, port: 4000
+    port = 4001
+    IO.puts "Running Proxy with Cowboy on http://localhost:#{port}"
+    Plug.Adapters.Cowboy.http __MODULE__, [], port: port
     :timer.sleep(:infinity)
   end
 
