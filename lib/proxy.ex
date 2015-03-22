@@ -2,7 +2,7 @@ defmodule Proxy do
   use Plug.Builder
   import Plug.Conn
 
-  @target "http://google.com"
+  @target "http://localhost:8080/"
 
   plug Plug.Logger
   plug :dispatch
