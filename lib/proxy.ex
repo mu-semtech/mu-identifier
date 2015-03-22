@@ -5,11 +5,23 @@ defmodule Proxy do
   @target "http://localhost:8080/"
 
   plug Plug.Logger
+  plug :put_secret_key_base
+  plug Plug.Session,
+       store: :cookie,
+       key: "proxy_session",
+       encryption_salt: "asnotheu etahoeu ta. toa. uao.c",
+       signing_salt: "saoteh aosethu aosntehu .b, m.u .0aom .0a",
+       key_length: 64
   plug :dispatch
+
+  def put_secret_key_base(conn, _) do
+    put_in conn.secret_key_base, "ZOMG this is a log string with at least 64 bytes in it... wiiiide!"
+  end
 
   def start(_argv) do
     port = 4001
     IO.puts "Running Proxy with Cowboy on http://localhost:#{port}"
+
     Plug.Adapters.Cowboy.http __MODULE__, [], port: port
     :timer.sleep(:infinity)
   end
@@ -17,8 +29,16 @@ defmodule Proxy do
   def dispatch(conn, _opts) do
     # Start a request to the client saying we will stream the body.
     # We are simply passing all req_headers forward.
-    req_headers = add_custom_request_headers( conn.req_headers )
-    {:ok, client} = :hackney.request(:get, uri(conn), req_headers, :stream, [])
+    # conn = conn |> ensure_user_session_id |> add_custom_request_headers
+
+    IO.puts inspect conn.req_headers
+
+    conn = conn
+      |> Plug.Conn.fetch_session
+      |> ensure_user_session_id
+      |> add_custom_request_headers
+    
+    {:ok, client} = :hackney.request(:get, uri(conn), conn.req_headers, :stream, [])
 
     conn
     |> write_proxy(client)
@@ -30,9 +50,19 @@ defmodule Proxy do
     [ {"Magic-content", "42"} | headers ]
   end
 
-  defp add_custom_request_headers(headers) do
-    IO.inspect headers
-    [ {"Api-version", "0.2.2"} | headers ]
+  defp ensure_user_session_id (conn) do
+    if Plug.Conn.get_session(conn, :proxy_user_id) do
+      conn
+    else
+      Plug.Conn.put_session(conn, :proxy_user_id, inspect(:random.uniform))
+    end
+  end
+
+  defp add_custom_request_headers(conn) do
+    headers = conn.req_headers
+    new_headers = [ {"Api-version", "0.2.2"} | headers ]
+    new_headers = [ {"user-id", Plug.Conn.get_session(conn, :proxy_user_id) } | headers ]
+    %{ conn | req_headers: new_headers }
   end
 
   # Reads the connection body and write it to the
