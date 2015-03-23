@@ -29,15 +29,11 @@ defmodule Proxy do
   def dispatch(conn, _opts) do
     # Start a request to the client saying we will stream the body.
     # We are simply passing all req_headers forward.
-    # conn = conn |> ensure_user_session_id |> add_custom_request_headers
 
-    IO.puts inspect conn.req_headers
+    conn = conn |> Plug.Conn.fetch_session |> ensure_user_session_id |> add_custom_request_headers
 
-    conn = conn
-      |> Plug.Conn.fetch_session
-      |> ensure_user_session_id
-      |> add_custom_request_headers
-    
+    IO.puts( inspect( Plug.Conn.get_session(conn, :proxy_user_id ) ) )
+
     {:ok, client} = :hackney.request(:get, uri(conn), conn.req_headers, :stream, [])
 
     conn
@@ -52,16 +48,18 @@ defmodule Proxy do
 
   defp ensure_user_session_id (conn) do
     if Plug.Conn.get_session(conn, :proxy_user_id) do
+      IO.puts( "keeping user_id" )
       conn
     else
-      Plug.Conn.put_session(conn, :proxy_user_id, inspect(:random.uniform))
+      IO.puts( "creating new rand user_id" )
+      Plug.Conn.put_session(conn, :proxy_user_id, inspect(:crypto.rand_bytes(32)))
     end
   end
 
   defp add_custom_request_headers(conn) do
     headers = conn.req_headers
     new_headers = [ {"Api-version", "0.2.2"} | headers ]
-    new_headers = [ {"user-id", Plug.Conn.get_session(conn, :proxy_user_id) } | headers ]
+    new_headers = [ {"user-id", Plug.Conn.get_session(conn, :proxy_user_id) } | new_headers ]
     %{ conn | req_headers: new_headers }
   end
 
