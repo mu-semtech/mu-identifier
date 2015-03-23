@@ -52,7 +52,7 @@ defmodule Proxy do
       conn
     else
       IO.puts( "creating new rand user_id" )
-      Plug.Conn.put_session(conn, :proxy_user_id, inspect(:crypto.rand_bytes(32)))
+      Plug.Conn.put_session(conn, :proxy_user_id, UUID.uuid1())
     end
   end
 
