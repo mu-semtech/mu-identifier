@@ -59,7 +59,7 @@ defmodule Proxy do
   defp add_custom_request_headers(conn) do
     headers = conn.req_headers
     new_headers = [ {"Api-version", "0.2.2"} | headers ]
-    new_headers = [ {"user-id", Plug.Conn.get_session(conn, :proxy_user_id) } | new_headers ]
+    new_headers = [ {"mu-session-id", Plug.Conn.get_session(conn, :proxy_user_id) } | new_headers ]
     %{ conn | req_headers: new_headers }
   end
 
