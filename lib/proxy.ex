@@ -34,7 +34,7 @@ defmodule Proxy do
 
     IO.puts( inspect( Plug.Conn.get_session(conn, :proxy_user_id ) ) )
 
-    {:ok, client} = :hackney.request(:get, uri(conn), conn.req_headers, :stream, [])
+    {:ok, client} = :hackney.request(conn.method, uri(conn), conn.req_headers, :stream, [])
 
     conn
     |> write_proxy(client)
