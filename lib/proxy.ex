@@ -2,7 +2,7 @@ defmodule Proxy do
   use Plug.Builder
   import Plug.Conn
 
-  @target "http://localhost:8080/"
+  @target "http://dispatcher/"
 
   plug Plug.Logger
   plug :put_secret_key_base
@@ -19,7 +19,7 @@ defmodule Proxy do
   end
 
   def start(_argv) do
-    port = 4001
+    port = 80
     IO.puts "Running Proxy with Cowboy on http://localhost:#{port}"
 
     Plug.Adapters.Cowboy.http __MODULE__, [], port: port
