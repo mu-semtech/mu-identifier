@@ -41,11 +41,6 @@ defmodule Proxy do
     |> read_proxy(client)
   end
 
-  # Adds custom headers to show we can do that trick.
-  defp add_custom_response_headers(headers) do
-    [ {"Magic-content", "42"} | headers ]
-  end
-
   defp ensure_user_session_id (conn) do
     if Plug.Conn.get_session(conn, :proxy_user_id) do
       IO.puts( "keeping user_id" )
@@ -58,8 +53,7 @@ defmodule Proxy do
 
   defp add_custom_request_headers(conn) do
     headers = conn.req_headers
-    new_headers = [ {"Api-version", "0.2.2"} | headers ]
-    new_headers = [ {"mu-session-id", Plug.Conn.get_session(conn, :proxy_user_id) } | new_headers ]
+    new_headers = [ {"mu-session-id", Plug.Conn.get_session(conn, :proxy_user_id) } | headers ]
     %{ conn | req_headers: new_headers }
   end
 
@@ -87,7 +81,7 @@ defmodule Proxy do
     # if it is chunked or not and act accordingly to support streaming.
     #
     # We may also need to delete other headers in a proxy.
-    headers = add_custom_response_headers List.keydelete(headers, "Transfer-Encoding", 1)
+    headers = List.keydelete(headers, "Transfer-Encoding", 1)
 
     %{conn | resp_headers: headers}
     |> send_resp(status, body)
