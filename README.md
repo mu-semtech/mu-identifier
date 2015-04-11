@@ -20,3 +20,7 @@ To run it in production:
     mix deps.get
     MIX_ENV=prod mix do compile, compile.protocols
     MIX_ENV=prod elixir -pa _build/prod/consolidated -S mix serve
+
+### License
+
+MIT-LICENSE
