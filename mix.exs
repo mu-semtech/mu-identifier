@@ -11,7 +11,7 @@ defmodule Proxy.Mixfile do
 
   # Some command line aliases
   def aliases do
-    [serve: ["run", &Proxy.start/1]]
+    [server: ["run", &Proxy.start/1]]
   end
 
   # Configuration for the OTP application
