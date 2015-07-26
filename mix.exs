@@ -31,9 +31,9 @@ defmodule Proxy.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    [{:cowboy, "~> 1.0"},
-     {:plug, "~> 0.8"},
-     {:hackney, "~> 0.14"},
-     {:uuid, "~> 1.0.0"}]
+    [{:cowboy, "~> 1.0.2"},
+     {:plug, "~> 0.12"},
+     {:hackney, "~> 1.2"},
+     {:uuid, "~> 1.0"}]
   end
 end
