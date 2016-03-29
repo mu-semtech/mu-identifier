@@ -30,7 +30,7 @@ defmodule Proxy do
     # Start a request to the client saying we will stream the body.
     # We are simply passing all req_headers forward.
 
-    conn = conn |> Plug.Conn.fetch_session |> ensure_user_session_id |> add_custom_request_headers
+    conn = conn |> Plug.Conn.fetch_session |> ensure_user_session_id |> alter_request_headers
 
     IO.puts( inspect( Plug.Conn.get_session(conn, :proxy_user_id ) ) )
 
@@ -51,9 +51,9 @@ defmodule Proxy do
     end
   end
 
-  defp add_custom_request_headers(conn) do
-    headers = conn.req_headers
-    new_headers = [ {"mu-session-id", Plug.Conn.get_session(conn, :proxy_user_id) } | headers ]
+  defp alter_request_headers(conn) do
+    cleaned_headers = List.keydelete( conn.req_headers, "Transfer-Encoding", 1 )
+    new_headers = [ {"mu-session-id", Plug.Conn.get_session(conn, :proxy_user_id) } | cleaned_headers ]
     %{ conn | req_headers: new_headers }
   end
 
