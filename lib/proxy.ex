@@ -1,6 +1,5 @@
 defmodule Proxy do
   use Plug.Builder
-  import Plug.Conn
 
   @target "http://dispatcher/"
 
@@ -30,15 +29,28 @@ defmodule Proxy do
     # Start a request to the client saying we will stream the body.
     # We are simply passing all req_headers forward.
 
-    conn = conn |> Plug.Conn.fetch_session |> ensure_user_session_id |> add_custom_request_headers
+    conn = conn
+    |> Plug.Conn.fetch_session
+    |> ensure_user_session_id
+    |> add_custom_request_headers
 
-    IO.puts( inspect( Plug.Conn.get_session(conn, :proxy_user_id ) ) )
+    # IO.puts( inspect( Plug.Conn.get_session(conn, :proxy_user_id ) ) )
 
-    {:ok, client} = :hackney.request(conn.method, uri(conn), conn.req_headers, :stream, [])
+    processors = %{
+      header_processor: fn (headers, state) ->
+        new_headers = [ {"mu-session-id", Plug.Conn.get_session(conn, :proxy_user_id) } | headers ]
+        { new_headers, state }
+      end,
+      chunk_processor: fn (chunk, state) -> { chunk, state } end,
+      body_processor: fn (body, state) -> { body, state } end,
+      finish_hook: fn (state) -> { true, state } end,
+      state: %{is_processor_state: true, body: "", headers: %{}, status_code: 200}
+    }
 
+    opts = PlugProxy.init url: uri(conn)
     conn
-    |> write_proxy(client)
-    |> read_proxy(client)
+    |> Map.put( :processors, processors )
+    |> PlugProxy.call( opts )
   end
 
   defp ensure_user_session_id (conn) do
@@ -55,36 +67,6 @@ defmodule Proxy do
     headers = conn.req_headers
     new_headers = [ {"mu-session-id", Plug.Conn.get_session(conn, :proxy_user_id) } | headers ]
     %{ conn | req_headers: new_headers }
-  end
-
-  # Reads the connection body and write it to the
-  # client recursively.
-  defp write_proxy(conn, client) do
-    # Check Plug.Conn.read_body/2 docs for maximum body value,
-    # the size of each chunk, and supported timeout values.
-    case read_body(conn, []) do
-      {:ok, body, conn} ->
-        :hackney.send_body(client, body)
-        conn
-      {:more, body, conn} ->
-        :hackney.send_body(client, body)
-        write_proxy(conn, client)
-    end
-  end
-
-  # Reads the client response and sends it back.
-  defp read_proxy(conn, client) do
-    {:ok, status, headers, client} = :hackney.start_response(client)
-    {:ok, body} = :hackney.body(client)
-
-    # Delete the transfer encoding header. Ideally, we would read
-    # if it is chunked or not and act accordingly to support streaming.
-    #
-    # We may also need to delete other headers in a proxy.
-    headers = List.keydelete(headers, "Transfer-Encoding", 1)
-
-    %{conn | resp_headers: headers}
-    |> send_resp(status, body)
   end
 
   defp uri(conn) do
