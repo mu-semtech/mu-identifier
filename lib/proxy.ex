@@ -1,7 +1,7 @@
 defmodule Proxy do
   use Plug.Builder
 
-  @target "http://dispatcher/"
+  @target "http://dispatcher"
 
   plug Plug.Logger
   plug :put_secret_key_base
