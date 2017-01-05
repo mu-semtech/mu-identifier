@@ -25,31 +25,31 @@ defmodule Proxy do
     :timer.sleep(:infinity)
   end
 
-  def dispatch(conn, _opts) do
-    # Start a request to the client saying we will stream the body.
-    # We are simply passing all req_headers forward.
-
-    conn = conn
-    |> Plug.Conn.fetch_session
-    |> ensure_user_session_id
-    |> add_custom_request_headers
-
-    # IO.puts( inspect( Plug.Conn.get_session(conn, :proxy_user_id ) ) )
-
+  defp add_processors(conn) do
     processors = %{
       header_processor: fn (headers, state) ->
-        new_headers = [ {"mu-session-id", Plug.Conn.get_session(conn, :proxy_user_id) } | headers ]
-        { new_headers, state }
+        # new_headers = [ {"mu-session-id", Plug.Conn.get_session(conn, :proxy_user_id) } | headers ]
+        # headers = List.keydelete( headers, "X-Cache", 0 )
+        { headers, state }
       end,
       chunk_processor: fn (chunk, state) -> { chunk, state } end,
       body_processor: fn (body, state) -> { body, state } end,
       finish_hook: fn (state) -> { true, state } end,
       state: %{is_processor_state: true, body: "", headers: %{}, status_code: 200}
     }
+    Map.put( conn, :processors, processors )
+  end
 
+  def dispatch(conn, _opts) do
+    # Start a request to the client saying we will stream the body.
+    # We are simply passing all req_headers forward.
     opts = PlugProxy.init url: uri(conn)
+
     conn
-    |> Map.put( :processors, processors )
+    |> Plug.Conn.fetch_session
+    |> ensure_user_session_id
+    |> add_custom_request_headers
+    |> add_processors
     |> PlugProxy.call( opts )
   end
 

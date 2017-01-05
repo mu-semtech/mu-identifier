@@ -5,8 +5,8 @@ defmodule Proxy.Mixfile do
     [app: :proxy,
      version: "0.0.1",
      elixir: "~> 1.0",
-     deps: deps,
-     aliases: aliases]
+     deps: deps(),
+     aliases: aliases()]
   end
 
   # Some command line aliases
