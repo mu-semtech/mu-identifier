@@ -15,6 +15,11 @@ use Mix.Config
 #       format: "$date $time [$level] $metadata$message\n",
 #       metadata: [:user_id]
 
+config :proxy,
+  encryption_salt: "asnotheu etahoeu ta. toa. uao.c",
+  signing_salt: "saoteh aosethu aosntehu .b, m.u .0aom .0a",
+  secret_base: "ZOMG this is a log string with at least 64 bytes in it... wiiiide!"
+
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
 # by uncommenting the line below and defining dev.exs, test.exs and such.

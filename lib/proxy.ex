@@ -8,13 +8,13 @@ defmodule Proxy do
   plug Plug.Session,
        store: :cookie,
        key: "proxy_session",
-       encryption_salt: "asnotheu etahoeu ta. toa. uao.c", # TODO use ENV instead
-       signing_salt: "saoteh aosethu aosntehu .b, m.u .0aom .0a", # TODO use ENV instead
+       encryption_salt: Application.get_env(:proxy, :encryption_salt),
+       signing_salt: Application.get_env(:proxy, :signing_salt),
        key_length: 64
   plug :dispatch
 
   def put_secret_key_base(conn, _) do
-    put_in conn.secret_key_base, "ZOMG this is a log string with at least 64 bytes in it... wiiiide!" # TODO use ENV instead
+    put_in conn.secret_key_base, Application.get_env(:proxy, :secret_base)
   end
 
   def start(_argv) do
