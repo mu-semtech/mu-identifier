@@ -16,9 +16,9 @@ use Mix.Config
 #       metadata: [:user_id]
 
 config :proxy,
-  encryption_salt: "asnotheu etahoeu ta. toa. uao.c",
-  signing_salt: "saoteh aosethu aosntehu .b, m.u .0aom .0a",
-  secret_base: "ZOMG this is a log string with at least 64 bytes in it... wiiiide!"
+  encryption_salt: System.get_env("MU_ENCRYPTION_SALT") || "${MU_ENCRYPTION_SALT}",
+  signing_salt: System.get_env("MU_SIGNING_SALT") || "${MU_SIGNING_SALT}",
+  secret_key_base: System.get_env("MU_SECRET_KEY_BASE") || "${MU_SECRET_KEY_BASE}"
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment

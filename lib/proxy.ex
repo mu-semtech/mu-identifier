@@ -14,12 +14,12 @@ defmodule Proxy do
   plug :dispatch
 
   def put_secret_key_base(conn, _) do
-    put_in conn.secret_key_base, Application.get_env(:proxy, :secret_base)
+    put_in conn.secret_key_base, Application.get_env(:proxy, :secret_key_base)
   end
 
   def start(_argv) do
     port = 80
-    IO.puts "Running Proxy with Cowboy on http://localhost:#{port}"
+    IO.puts "Running Proxy with Cowboy on port #{port}"
 
     Plug.Adapters.Cowboy.http __MODULE__, [], port: port
     :timer.sleep(:infinity)
