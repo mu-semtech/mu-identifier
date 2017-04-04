@@ -65,7 +65,9 @@ defmodule Proxy do
 
   defp add_custom_request_headers(conn) do
     headers = conn.req_headers
-    new_headers = [ {"mu-session-id", Plug.Conn.get_session(conn, :proxy_user_id) } | headers ]
+    new_headers = [ {"mu-session-id", Plug.Conn.get_session(conn, :proxy_user_id) },
+                    {"mu-call-id", Integer.to_string( Enum.random( 0..1_000_000_000_000 ) )},
+                    | headers ]
     %{ conn | req_headers: new_headers }
   end
 
