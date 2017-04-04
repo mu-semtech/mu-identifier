@@ -15,6 +15,11 @@ use Mix.Config
 #       format: "$date $time [$level] $metadata$message\n",
 #       metadata: [:user_id]
 
+config :proxy,
+  encryption_salt: System.get_env("MU_ENCRYPTION_SALT") || "${MU_ENCRYPTION_SALT}",
+  signing_salt: System.get_env("MU_SIGNING_SALT") || "${MU_SIGNING_SALT}",
+  secret_key_base: System.get_env("MU_SECRET_KEY_BASE") || "${MU_SECRET_KEY_BASE}"
+
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
 # by uncommenting the line below and defining dev.exs, test.exs and such.
