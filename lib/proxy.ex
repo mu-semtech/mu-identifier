@@ -27,10 +27,26 @@ defmodule Proxy do
 
   defp add_processors(conn) do
     processors = %{
-      header_processor: fn (headers, state) ->
+      header_processor: fn (headers, response_conn, state) ->
+
+        authorization =
+          headers
+          |> List.keyfind( "mu-authorization-groups", 0, {nil,nil} )
+          |> elem(1)
+
+        response_conn = if authorization do
+          Plug.Conn.put_session(response_conn, :mu_authorization_groups, authorization)
+        else
+          response_conn
+        end
+
         # new_headers = [ {"mu-session-id", Plug.Conn.get_session(conn, :proxy_user_id) } | headers ]
         # headers = List.keydelete( headers, "X-Cache", 0 )
-        { headers, state }
+        new_headers =
+          headers
+          |> List.keydelete( "mu-authorization-groups", 0 )
+
+        { new_headers, state, response_conn }
       end,
       chunk_processor: fn (chunk, state) -> { chunk, state } end,
       body_processor: fn (body, state) -> { body, state } end,
@@ -68,6 +84,16 @@ defmodule Proxy do
     new_headers = [ {"mu-session-id", Plug.Conn.get_session(conn, :proxy_user_id) },
                     {"mu-call-id", Integer.to_string( Enum.random( 0..1_000_000_000_000 ) )}
                     | headers ]
+
+    authorization_groups = Plug.Conn.get_session( conn, :mu_authorization_groups )
+
+    new_headers = if authorization_groups do
+      [ { "mu-authorization-groups", authorization_groups }
+        | new_headers ]
+    else
+      new_headers
+    end
+
     %{ conn | req_headers: new_headers }
   end
 
