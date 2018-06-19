@@ -31,20 +31,22 @@ defmodule Proxy do
 
         authorization =
           headers
-          |> List.keyfind( "mu-authorization-groups", 0, {nil,nil} )
+          |> List.keyfind( "mu-auth-allowed-groups", 0, {nil,nil} )
           |> elem(1)
 
-        response_conn = if authorization do
-          Plug.Conn.put_session(response_conn, :mu_authorization_groups, authorization)
-        else
-          response_conn
-        end
+        response_conn =
+          case authorization do
+            "CLEAR" -> Plug.Conn.delete_session( response_conn, :mu_auth_allowed_groups )
+            nil -> response_conn
+            _ -> Plug.Conn.put_session(response_conn, :mu_auth_allowed_groups, authorization)
+          end
 
         # new_headers = [ {"mu-session-id", Plug.Conn.get_session(conn, :proxy_user_id) } | headers ]
-        # headers = List.keydelete( headers, "X-Cache", 0 )
         new_headers =
           headers
-          |> List.keydelete( "mu-authorization-groups", 0 )
+          |> List.keydelete( "X-Cache", 0 )
+          |> List.keydelete( "mu-auth-allowed-groups", 0 )
+          |> List.keydelete( "mu-auth-used-groups", 0 )
 
         { new_headers, state, response_conn }
       end,
@@ -85,10 +87,10 @@ defmodule Proxy do
                     {"mu-call-id", Integer.to_string( Enum.random( 0..1_000_000_000_000 ) )}
                     | headers ]
 
-    authorization_groups = Plug.Conn.get_session( conn, :mu_authorization_groups )
+    authorization_groups = Plug.Conn.get_session( conn, :mu_auth_allowed_groups )
 
     new_headers = if authorization_groups do
-      [ { "mu-authorization-groups", authorization_groups }
+      [ { "mu-auth-allowed-groups", authorization_groups }
         | new_headers ]
     else
       new_headers
