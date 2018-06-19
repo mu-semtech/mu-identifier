@@ -1,4 +1,4 @@
-FROM madnificent/elixir-server:latest
+FROM madnificent/elixir-server:1.6.5
 
 ENV MU_ENCRYPTION_SALT "asnotheu etahoeu ta. toa. uao.c"
 ENV MU_SIGNING_SALT "saoteh aosethu aosntehu .b, m.u .0aom .0a"
