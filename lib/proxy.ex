@@ -83,9 +83,18 @@ defmodule Proxy do
 
   defp add_custom_request_headers(conn) do
     headers = conn.req_headers
-    new_headers = [ {"mu-session-id", Plug.Conn.get_session(conn, :proxy_user_id) },
-                    {"mu-call-id", Integer.to_string( Enum.random( 0..1_000_000_000_000 ) )}
-                    | headers ]
+
+    # Clean all information which we are owner of within the stack
+    clean_headers =
+      headers
+      |> List.keydelete( "mu-session-id" )
+      |> List.keydelete( "mu-call-id" )
+      |> List.keydelete( "mu-auth-allowed-groups" )
+
+    new_headers =
+      [ {"mu-session-id", Plug.Conn.get_session(conn, :proxy_user_id) },
+        {"mu-call-id", Integer.to_string( Enum.random( 0..1_000_000_000_000 ) )}
+        | clean_headers ]
 
     authorization_groups = Plug.Conn.get_session( conn, :mu_auth_allowed_groups )
 
