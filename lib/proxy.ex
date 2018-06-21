@@ -87,9 +87,9 @@ defmodule Proxy do
     # Clean all information which we are owner of within the stack
     clean_headers =
       headers
-      |> List.keydelete( "mu-session-id" )
-      |> List.keydelete( "mu-call-id" )
-      |> List.keydelete( "mu-auth-allowed-groups" )
+      |> List.keydelete( "mu-session-id", 0 )
+      |> List.keydelete( "mu-call-id", 0 )
+      |> List.keydelete( "mu-auth-allowed-groups", 0 )
 
     new_headers =
       [ {"mu-session-id", Plug.Conn.get_session(conn, :proxy_user_id) },
