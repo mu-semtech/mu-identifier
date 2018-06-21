@@ -32,6 +32,6 @@ defmodule Proxy.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [{:plug_proxy, git: "https://github.com/madnificent/plug-proxy.git"},
-     {:uuid, "~> 1.0"}]
+     {:uuid, "~> 1.1"}]
   end
 end
