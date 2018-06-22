@@ -29,6 +29,8 @@ defmodule Proxy do
     processors = %{
       header_processor: fn (headers, response_conn, state) ->
 
+        headers = Enum.map( headers, fn( {name, value} ) -> {String.downcase(name),value} end )
+
         authorization =
           headers
           |> List.keyfind( "mu-auth-allowed-groups", 0, {nil,nil} )
@@ -44,9 +46,11 @@ defmodule Proxy do
         # new_headers = [ {"mu-session-id", Plug.Conn.get_session(conn, :proxy_user_id) } | headers ]
         new_headers =
           headers
-          |> List.keydelete( "X-Cache", 0 )
+          |> List.keydelete( "x-cache", 0 )
           |> List.keydelete( "mu-auth-allowed-groups", 0 )
           |> List.keydelete( "mu-auth-used-groups", 0 )
+          |> List.keydelete( "cache-keys", 0 )
+          |> List.keydelete( "clear-keys", 0 )
 
         { new_headers, state, response_conn }
       end,
