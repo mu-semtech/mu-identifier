@@ -78,9 +78,14 @@ defmodule Proxy do
 
     case cache_clear_header do
       "no-cache" ->
-        [ { "pragma", "no-cache" }, { "expires", "-1" } | headers ]
+        headers
+        |> put_new_key( "pragma", "no-cache" )
+        |> put_new_key( "expires", "-1" )
       :no_cache_control_header ->
-        [ { "pragma", "no-cache" }, { "expires", "-1" }, { "cache-control", "no-cache" } | headers ]
+        headers
+        |> put_new_key( "pragma", "no-cache" )
+        |> put_new_key( "expires", "-1" )
+        |> put_new_key( "cache-control", "no-cache" )
       _ -> headers
     end
   end
@@ -140,6 +145,16 @@ defmodule Proxy do
     case conn.query_string do
       "" -> base
       qs -> base <> "?" <> qs
+    end
+  end
+
+  def put_new_key( list, key, value ) do
+    # Adds the key/value tuple to the list, unless it is already there
+
+    if List.keymember?( list, key, 0 ) do
+      list
+    else
+      [ { key, value } | list ]
     end
   end
 end
