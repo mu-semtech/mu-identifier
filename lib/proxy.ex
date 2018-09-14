@@ -51,6 +51,7 @@ defmodule Proxy do
           |> List.keydelete( "mu-auth-used-groups", 0 )
           |> List.keydelete( "cache-keys", 0 )
           |> List.keydelete( "clear-keys", 0 )
+          |> augment_cache_clear_headers
 
         { new_headers, state, response_conn }
       end,
@@ -60,6 +61,28 @@ defmodule Proxy do
       state: %{is_processor_state: true, body: "", headers: %{}, status_code: 200}
     }
     Map.put( conn, :processors, processors )
+  end
+
+  defp augment_cache_clear_headers( headers ) do
+    # When the cache is not set, or when it is "no-cache", we inform
+    # browsers in all headers available to us to not add any caches.
+
+    # Some browsers (IE) handle caching differently than their peers.
+    # The mu-identifier makes this easier to support by providing the
+    # necessary headers.
+
+    cache_clear_header =
+      headers
+      |> List.keyfind( "cache-control", 0, {nil,:no_cache_control_header} )
+      |> elem(1)
+
+    case cache_clear_header do
+      "no-cache" ->
+        [ { "pragma", "no-cache" }, { "expires", "-1" } | headers ]
+      :no_cache_control_header ->
+        [ { "pragma", "no-cache" }, { "expires", "-1" }, { "cache-control", "no-cache" } | headers ]
+      _ -> headers
+    end
   end
 
   def dispatch(conn, _opts) do
