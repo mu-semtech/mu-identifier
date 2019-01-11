@@ -52,6 +52,7 @@ defmodule Proxy do
           |> List.keydelete( "cache-keys", 0 )
           |> List.keydelete( "clear-keys", 0 )
           |> augment_cache_clear_headers
+          |> add_cors_header
 
         { new_headers, state, response_conn }
       end,
@@ -88,6 +89,11 @@ defmodule Proxy do
         |> put_new_key( "cache-control", "no-cache" )
       _ -> headers
     end
+  end
+
+  defp add_cors_header( headers ) do
+    # Adds the CORS header to the list of headers
+    put_new_key( headers, "Access-Control-Allow-Origin", "*" )
   end
 
   def dispatch(conn, _opts) do
