@@ -18,7 +18,8 @@ use Mix.Config
 config :proxy,
   encryption_salt: System.get_env("MU_ENCRYPTION_SALT") || "${MU_ENCRYPTION_SALT}",
   signing_salt: System.get_env("MU_SIGNING_SALT") || "${MU_SIGNING_SALT}",
-  secret_key_base: System.get_env("MU_SECRET_KEY_BASE") || "${MU_SECRET_KEY_BASE}"
+  secret_key_base: System.get_env("MU_SECRET_KEY_BASE") || "${MU_SECRET_KEY_BASE}",
+  cors_header: System.get_env("MU_CORS_HEADER")
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment

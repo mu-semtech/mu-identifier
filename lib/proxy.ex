@@ -93,7 +93,13 @@ defmodule Proxy do
 
   defp add_cors_header( headers ) do
     # Adds the CORS header to the list of headers
-    put_new_key( headers, "Access-Control-Allow-Origin", "*" )
+    cors_header = Application.get_env(:proxy, :cors_header)
+
+    if cors_header do
+      put_new_key( headers, "Access-Control-Allow-Origin", cors_header )
+    else
+      headers
+    end
   end
 
   def dispatch(conn, _opts) do
