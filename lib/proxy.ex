@@ -38,9 +38,12 @@ defmodule Proxy do
 
         response_conn =
           case authorization do
-            "CLEAR" -> Plug.Conn.delete_session( response_conn, :mu_auth_allowed_groups )
+            "CLEAR" ->
+              # Set CLEAR as the authorization group so we can pick it
+              # up on the next request
+              Plug.Conn.put_session( response_conn, :mu_auth_allowed_groups, authorization )
             nil -> response_conn
-            _ -> Plug.Conn.put_session(response_conn, :mu_auth_allowed_groups, authorization)
+            _ -> Plug.Conn.put_session( response_conn, :mu_auth_allowed_groups, authorization )
           end
 
         # new_headers = [ {"mu-session-id", Plug.Conn.get_session(conn, :proxy_user_id) } | headers ]
@@ -144,6 +147,8 @@ defmodule Proxy do
     default_allowed_groups = Application.get_env(:proxy, :default_mu_auth_allowed_groups)
 
     headers_with_authorization = cond do
+      authorization_groups == "CLEAR" ->
+        new_headers
       authorization_groups ->
         [ { "mu-auth-allowed-groups", authorization_groups } | new_headers ]
       default_allowed_groups ->
