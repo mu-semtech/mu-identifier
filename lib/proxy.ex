@@ -141,15 +141,18 @@ defmodule Proxy do
         | clean_headers ]
 
     authorization_groups = Plug.Conn.get_session( conn, :mu_auth_allowed_groups )
+    default_allowed_groups = Application.get_env(:proxy, :default_mu_auth_allowed_groups)
 
-    new_headers = if authorization_groups do
-      [ { "mu-auth-allowed-groups", authorization_groups }
-        | new_headers ]
-    else
-      new_headers
+    headers_with_authorization = cond do
+      authorization_groups ->
+        [ { "mu-auth-allowed-groups", authorization_groups } | new_headers ]
+      default_allowed_groups ->
+        [ { "mu-auth-allowed-groups", default_allowed_groups } | new_headers ]
+      true ->
+        new_headers
     end
 
-    %{ conn | req_headers: new_headers }
+    %{ conn | req_headers: headers_with_authorization }
   end
 
   defp uri(conn) do
