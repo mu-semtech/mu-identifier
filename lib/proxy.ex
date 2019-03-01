@@ -55,7 +55,7 @@ defmodule Proxy do
           |> List.keydelete( "cache-keys", 0 )
           |> List.keydelete( "clear-keys", 0 )
           |> augment_cache_clear_headers
-          |> add_cors_header
+          |> add_default_cors_header
 
         { new_headers, state, response_conn }
       end,
@@ -94,12 +94,12 @@ defmodule Proxy do
     end
   end
 
-  defp add_cors_header( headers ) do
+  defp add_default_cors_header( headers ) do
     # Adds the CORS header to the list of headers
-    cors_header = Application.get_env(:proxy, :default_access_control_allow_origin_header)
+    default_cors_header = Application.get_env(:proxy, :default_access_control_allow_origin_header)
 
-    if cors_header do
-      put_new_key( headers, "Access-Control-Allow-Origin", cors_header )
+    if default_cors_header do
+      put_new_key( headers, "Access-Control-Allow-Origin", default_cors_header )
     else
       headers
     end

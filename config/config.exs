@@ -19,8 +19,8 @@ config :proxy,
   encryption_salt: System.get_env("MU_ENCRYPTION_SALT") || "${MU_ENCRYPTION_SALT}",
   signing_salt: System.get_env("MU_SIGNING_SALT") || "${MU_SIGNING_SALT}",
   secret_key_base: System.get_env("MU_SECRET_KEY_BASE") || "${MU_SECRET_KEY_BASE}",
-  cors_header: System.get_env("MU_CORS_HEADER"),
-  default_mu_auth_allowed_groups: System.get_env("DEFAULT_MU_AUTH_ALLOWED_GROUPS")
+  default_access_control_allow_origin_header: System.get_env("DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN_HEADER"),
+  default_mu_auth_allowed_groups_header: System.get_env("DEFAULT_MU_AUTH_ALLOWED_GROUPS_HEADER")
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
