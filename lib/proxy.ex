@@ -96,7 +96,7 @@ defmodule Proxy do
 
   defp add_cors_header( headers ) do
     # Adds the CORS header to the list of headers
-    cors_header = Application.get_env(:proxy, :cors_header)
+    cors_header = Application.get_env(:proxy, :default_access_control_allow_origin_header)
 
     if cors_header do
       put_new_key( headers, "Access-Control-Allow-Origin", cors_header )
@@ -144,7 +144,7 @@ defmodule Proxy do
         | clean_headers ]
 
     authorization_groups = Plug.Conn.get_session( conn, :mu_auth_allowed_groups )
-    default_allowed_groups = Application.get_env(:proxy, :default_mu_auth_allowed_groups)
+    default_allowed_groups = Application.get_env(:proxy, :default_mu_auth_allowed_groups_header)
 
     headers_with_authorization = cond do
       authorization_groups == "CLEAR" ->
