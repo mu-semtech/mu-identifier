@@ -2,23 +2,21 @@ defmodule Proxy.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :proxy,
+    [app: :mu_identifier,
      version: "1.6.1",
-     elixir: "~> 1.0",
-     deps: deps(),
-     aliases: aliases()]
-  end
-
-  # Some command line aliases
-  def aliases do
-    [server: ["run", &Proxy.start/1]]
+     elixir: "~> 1.7",
+     deps: deps()]
   end
 
   # Configuration for the OTP application
   #
   # Type `mix help compile.app` for more information
   def application do
-    [applications: [:logger, :cowboy, :plug, :hackney]]
+    [
+      extra_applications: [:logger, :plug_mint_proxy, :cowboy, :plug],
+      mod: {MuIdentifier, []},
+      env: []
+    ]
   end
 
   # Dependencies can be Hex packages:
@@ -31,7 +29,9 @@ defmodule Proxy.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    [{:plug_proxy, git: "https://github.com/madnificent/plug-proxy.git"},
-     {:uuid, "~> 1.1"}]
+    [# {:plug_proxy, path: "/home/madnificent/code/elixir/plug-proxy.git"},
+     # {:plug_proxy, git: "https://github.com/madnificent/plug-proxy.git", branch: "feature/upgrade-to-4.0"},
+      {:plug_mint_proxy, git: "https://github.com/madnificent/plug-mint-proxy.git", branch: "back-to-the-future"},
+      {:uuid, "~> 1.1"}]
   end
 end
