@@ -12,7 +12,7 @@ defmodule MuIdentifier do
 
     children = [
       {Secret,%{}},
-      {Plug.Cowboy, scheme: :http, plug: Proxy, options: [port: port]}
+      {Plug.Cowboy, scheme: :http, plug: Proxy, options: [port: port, compress: true]}
     ]
 
     Logger.info("Mu Identifier starting on port #{port}")
