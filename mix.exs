@@ -3,7 +3,7 @@ defmodule Proxy.Mixfile do
 
   def project do
     [app: :mu_identifier,
-     version: "1.6.1",
+     version: "1.7.0",
      elixir: "~> 1.7",
      deps: deps()]
   end
@@ -29,9 +29,8 @@ defmodule Proxy.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    [# {:plug_proxy, path: "/home/madnificent/code/elixir/plug-proxy.git"},
-     # {:plug_proxy, git: "https://github.com/madnificent/plug-proxy.git", branch: "feature/upgrade-to-4.0"},
-      {:plug_mint_proxy, git: "https://github.com/madnificent/plug-mint-proxy.git", branch: "back-to-the-future"},
-      {:uuid, "~> 1.1"}]
+    [{:plug_mint_proxy, git: "https://github.com/madnificent/plug-mint-proxy.git", branch: "back-to-the-future"},
+     {:uuid, "~> 1.1"},
+     {:secure_random, "~> 0.5"}]
   end
 end

@@ -11,6 +11,7 @@ defmodule MuIdentifier do
     IO.puts("Running Proxy with Cowboy on port #{port}")
 
     children = [
+      {Secret,%{}},
       {Plug.Cowboy, scheme: :http, plug: Proxy, options: [port: port]}
     ]
 

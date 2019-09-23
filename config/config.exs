@@ -16,9 +16,9 @@ use Mix.Config
 #       metadata: [:user_id]
 
 config :mu_identifier,
-  encryption_salt: System.get_env("MU_ENCRYPTION_SALT") || "${MU_ENCRYPTION_SALT}",
-  signing_salt: System.get_env("MU_SIGNING_SALT") || "${MU_SIGNING_SALT}",
-  secret_key_base: System.get_env("MU_SECRET_KEY_BASE") || "${MU_SECRET_KEY_BASE}",
+  encryption_salt: System.get_env("MU_ENCRYPTION_SALT"),
+  signing_salt: System.get_env("MU_SIGNING_SALT"),
+  secret_key_base: System.get_env("MU_SECRET_KEY_BASE"),
   default_access_control_allow_origin_header: System.get_env("DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN_HEADER"),
   default_mu_auth_allowed_groups_header: System.get_env("DEFAULT_MU_AUTH_ALLOWED_GROUPS_HEADER")
 
