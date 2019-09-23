@@ -1,7 +1,7 @@
 defmodule Proxy do
   use Plug.Builder
 
-  @target "http://dispatcher"
+  @target "http://dispatcher/"
 
   plug(Plug.Logger)
   plug(:put_secret_key_base)
@@ -33,13 +33,6 @@ defmodule Proxy do
   end
 
   def dispatch(conn, _opts) do
-    # Start a request to the client saying we will stream the body.
-    # We are simply passing all req_headers forward.
-
-    # opts = PlugProxy.init url: uri(conn)
-
-    ProxyManipulatorSettings.print_diagnostics(@manipulators)
-
     conn =
       conn
       |> Plug.Conn.fetch_session()
@@ -47,7 +40,7 @@ defmodule Proxy do
     ConnectionForwarder.forward(
       conn,
       Map.get(conn, :path_info),
-      "http://dispatcher/",
+      @target,
       @manipulators
     )
   end
