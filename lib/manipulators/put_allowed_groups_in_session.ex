@@ -8,8 +8,9 @@ defmodule Manipulators.PutAllowedGroupsInSession do
       |> List.keyfind("mu-auth-allowed-groups", 0, {nil, nil})
       |> elem(1)
 
-    if Application.get_env(:mu_identifier, :log_allowed_groups) do
-      IO.inspect(authorization, label: "Authorization to set in response cookie")
+    if Application.get_env(:mu_identifier, :log_outgoing_allowed_groups) ||
+         Application.get_env(:mu_identifier, :log_allowed_groups) do
+      IO.inspect(authorization, label: "Outgoing allowed groups")
     end
 
     frontend_connection =
@@ -30,8 +31,8 @@ defmodule Manipulators.PutAllowedGroupsInSession do
   end
 
   @impl true
-  def chunk(_,_), do: :skip
+  def chunk(_, _), do: :skip
 
   @impl true
-  def finish(_,_), do: :skip
+  def finish(_, _), do: :skip
 end

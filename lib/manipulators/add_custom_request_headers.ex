@@ -17,13 +17,16 @@ defmodule Manipulators.AddCustomRequestHeaders do
     ]
 
     authorization_groups = Plug.Conn.get_session(frontend_connection, :mu_auth_allowed_groups)
-    default_allowed_groups = Application.get_env(:mu_identifier, :default_mu_auth_allowed_groups_header)
 
-    if Application.get_env(:mu_identifier, :log_allowed_groups) do
+    default_allowed_groups =
+      Application.get_env(:mu_identifier, :default_mu_auth_allowed_groups_header)
+
+    if Application.get_env(:mu_identifier, :log_incoming_allowed_groups) ||
+         Application.get_env(:mu_identifier, :log_allowed_groups) do
       if authorization_groups do
-        IO.inspect(authorization_groups, label: "authorization groups from cookie")
+        IO.inspect(authorization_groups, label: "Incoming allowed groups from cookie")
       else
-        IO.inspect(default_allowed_groups, label: "default allowed groups")
+        IO.inspect(default_allowed_groups, label: "Incoming allowed groups are default")
       end
     end
 
@@ -46,8 +49,8 @@ defmodule Manipulators.AddCustomRequestHeaders do
   end
 
   @impl true
-  def chunk(_,_), do: :skip
+  def chunk(_, _), do: :skip
 
   @impl true
-  def finish(_,_), do: :skip
+  def finish(_, _), do: :skip
 end

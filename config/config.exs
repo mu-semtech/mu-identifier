@@ -15,12 +15,38 @@ use Mix.Config
 #       format: "$date $time [$level] $metadata$message\n",
 #       metadata: [:user_id]
 
+defmodule CH do
+  def system_boolean(name) do
+    case String.downcase(System.get_env(name) || "") do
+      "true" -> true
+      "yes" -> true
+      "1" -> true
+      "on" -> true
+      _ -> false
+    end
+  end
+end
+
 config :mu_identifier,
   encryption_salt: System.get_env("MU_ENCRYPTION_SALT"),
   signing_salt: System.get_env("MU_SIGNING_SALT"),
   secret_key_base: System.get_env("MU_SECRET_KEY_BASE"),
   default_access_control_allow_origin_header: System.get_env("DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN_HEADER"),
-  default_mu_auth_allowed_groups_header: System.get_env("DEFAULT_MU_AUTH_ALLOWED_GROUPS_HEADER")
+  default_mu_auth_allowed_groups_header: System.get_env("DEFAULT_MU_AUTH_ALLOWED_GROUPS_HEADER"),
+  log_allowed_groups: System.get_env("LOG_ALLOWED_GROUPS"),
+  log_incoming_allowed_groups: System.get_env("LOG_INCOMING_ALLOWED_GROUPS"),
+  log_outgoing_allowed_groups: System.get_env("LOG_OUTGOING_ALLOWED_GROUPS")
+
+config :plug_mint_proxy,
+  author: :"mu-semtech",
+  log_backend_communication: CH.system_boolean("LOG_BACKEND_COMMUNICATION"),
+  log_frontend_communication: CH.system_boolean("LOG_FRONTEND_COMMUNICATION"),
+  log_request_processing: CH.system_boolean("LOG_FRONTEND_PROCESSING"),
+  log_response_processing: CH.system_boolean("LOG_BACKEND_PROCESSING"),
+  log_connection_setup: CH.system_boolean("LOG_CONNECTION_SETUP"),
+  log_request_body: CH.system_boolean("LOG_REQUEST_BODY"),
+  log_response_body: CH.system_boolean("LOG_RESPONSE_BODY")
+
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
