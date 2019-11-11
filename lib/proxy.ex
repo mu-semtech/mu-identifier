@@ -2,7 +2,8 @@ defmodule Proxy do
   use Plug.Builder
 
   @target "http://dispatcher/"
-  @encryption_salt Application.get_env(:proxy, :encryption_salt) || SecureRandom.urlsafe_base64(128)
+  @encryption_salt Application.get_env(:proxy, :encryption_salt) ||
+                     SecureRandom.urlsafe_base64(128)
   @signing_salt Application.get_env(:proxy, :signing_salt) || SecureRandom.urlsafe_base64(128)
 
   plug(Plug.Logger)
@@ -31,7 +32,7 @@ defmodule Proxy do
                 )
 
   def put_secret_key_base(conn, _) do
-    put_in conn.secret_key_base, Secret.secret_key_base()
+    put_in(conn.secret_key_base, Secret.secret_key_base())
   end
 
   def dispatch(conn, _opts) do
