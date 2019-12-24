@@ -8,3 +8,8 @@ The following environment variables must be configured:
 * `MU_SIGNING_SALT`: a salt used with `MU_SECRET_KEY_BASE` to generate a key for signing/verifying a cookie
 * `DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN_HEADER`: value of the `Access-Control-Allow-Origin` header if it should be set by the identifier
 * `DEFAULT_MU_AUTH_ALLOWED_GROUPS_HEADER`: string used as default `MU_AUTH_ALLOWED_GROUPS` for sessions which don't contain these groups yet. (eg: `"[{\"variables\":[],\"name\":\"public\"}]"`)
+
+The following log flags are supported:
+* `LOG_INCOMING_ALLOWED_GROUPS`: log incoming allowed groups set on the incoming request
+* `LOG_OUTGOING_ALLOWED_GROUPS`: log outgoing allowed groups set on the outgoing response
+* `LOG_ALLOWED_GROUPS`: log incoming as well as outgoing allowed groups
