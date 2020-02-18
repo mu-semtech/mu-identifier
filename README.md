@@ -2,7 +2,7 @@
 
 An HTTP proxy for identifying sessions so microservices can act on them.
 
-The mu-identifier doesn't have much information on the user's session.  It identifiers a specific Browser Agent (a specific browser on a specific device) so other services can attach information to them.  The identifier is also responsible for other things in which we detect the user, currently caching the access rights of the current user.
+The mu-identifier doesn't have much information on the user's session.  It identifies a specific Browser Agent (a specific browser on a specific device) so other services can attach information to them.  The identifier is also responsible for other things in which we detect the user, currently caching the access rights of the current user.
 
 
      This service proxies the user's request to http://dispatcher/ and adds the `MU-SESSION-ID` header with an identifier of the current session.
@@ -12,7 +12,7 @@ The mu-identifier doesn't have much information on the user's session.  It ident
 
 ### Add the identifier to a stack
 
-The mu-identifier is the place where requests arrive.  The identifier is published on port 80 on servers which only runs one application.  A development environment could be an example.
+The mu-identifier is the place where requests arrive.  The identifier is published on port 80 on servers which only run one application.  A development environment could be an example.
 
 Add the identifier to the services block of your docker-compose.yml
 
@@ -32,7 +32,7 @@ Cross Origin Resource Sharing is a method which allows a browser visiting domain
 
 When an external site is being used as an API, the browser sends an OPTIONS request and checks the `Access-Control-Allow-Origin` header for a valid remote source.  `*` is used as a value to allow access from all remote hosts.  That's what we'll use in this example.
 
-NOTE: There are some caveats to our approach.  In order to pass the coookie through some extra headers may need to be sent (common are `access-control-allow-headers: content-type,accept` and `access-control-allow-methods: *`).  If you need support for this, create a PR or discuss add an issue.
+NOTE: There are some caveats to our approach.  In order to pass the coookie through some extra headers may need to be sent (common are `access-control-allow-headers: content-type,accept` and `access-control-allow-methods: *`).  If you need support for this, create a PR or discuss in an issue.
 
 The identifier can add this header to any response.  We do this by setting the `DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN_HEADER` value.  This can either be applied to the docker-compose.yml or to the docker-compose.override.yml based on the intended use.  We will assume the application is always considered public and add it to the docker-compose.yml
 
@@ -61,7 +61,7 @@ In order to ensure the dispatcher picks up the new route, we have to restart the
 
 Done, your API can now be accessed from external sources.
 
-### Recalculate of allowed groups after login
+### Recalculate allowed groups after login
 
 If a service updates the access rights of the current session and does not calculate the access rights itself, it must inform the identifier to clear the `mu-auth-allowed-groups` header and refrain from setting it in the next call.
 
