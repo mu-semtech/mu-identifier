@@ -170,6 +170,10 @@ All settings are configured through environment variables.
 
 ### Special headers
 
+#### Passes `Mu-Session-Id` to backend
+
+The identifier generates a unique URI for each Browser Agent. It passes this session identifier via the `Mu-Session-Id` to the backend. The microservices in the backend can use the value passed in the header to attach data to the user's session in the store.
+
 #### Received `Mu-Auth-Allowed-Groups` from backend
 
 The last received `Mu-Auth-Allowed-Groups` is considered to contain the current access rights of the user.  A backend putting `Clear` in these access rights requests the rights to be cleared, and no `Mu-Auth-Allowed-Groups` to be supplied to the backend in the subsequent request, effectively causing a recalculation of the `Mu-Auth-Allowed-Groups` by the backend.
