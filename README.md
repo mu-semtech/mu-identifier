@@ -2,11 +2,7 @@
 
 An HTTP proxy for identifying sessions so microservices can act on them.
 
-The mu-identifier doesn't have much information on the user's session.  It identifies a specific Browser Agent (a specific browser on a specific device) so other services can attach information to them.  The identifier is also responsible for other things in which we detect the user, currently caching the access rights of the current user.
-
-
-     This service proxies the user's request to http://dispatcher/ and adds the `MU-SESSION-ID` header with an identifier of the current session.
-
+The mu-identifier doesn't have much information on the user's session.  It identifies a specific Browser Agent (a specific browser on a specific device) so other services can attach information to them.  The session identifier is passed through the `MU-SESSION-ID` header to the backend services. The identifier is also responsible for other things in which we detect the user, currently caching the access rights of the current user.
 
 ## Tutorials
 
@@ -173,6 +169,10 @@ All settings are configured through environment variables.
 
 
 ### Special headers
+
+#### Passes `Mu-Session-Id` to backend
+
+The identifier generates a unique URI for each Browser Agent. It passes this session identifier via the `Mu-Session-Id` to the backend. The microservices in the backend can use the value passed in the header to attach data to the user's session in the store.
 
 #### Received `Mu-Auth-Allowed-Groups` from backend
 
