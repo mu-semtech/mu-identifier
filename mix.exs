@@ -29,8 +29,9 @@ defmodule Proxy.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    [{:plug_mint_proxy, git: "https://github.com/madnificent/plug-mint-proxy.git", branch: "back-to-the-future"},
+    [{:plug_mint_proxy, git: "https://github.com/madnificent/plug-mint-proxy.git", tag: "v0.0.2"},
      {:uuid, "~> 1.1"},
-     {:secure_random, "~> 0.5"}]
+     {:secure_random, "~> 0.5"},
+     {:observer_cli, "~> 1.5"}]
   end
 end
