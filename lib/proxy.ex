@@ -2,9 +2,9 @@ defmodule Proxy do
   use Plug.Builder
 
   @target "http://dispatcher/"
-  @encryption_salt Application.get_env(:proxy, :encryption_salt) ||
+  @encryption_salt Application.get_env(:mu_identifier, :encryption_salt) ||
                      SecureRandom.urlsafe_base64(128)
-  @signing_salt Application.get_env(:proxy, :signing_salt) || SecureRandom.urlsafe_base64(128)
+  @signing_salt Application.get_env(:mu_identifier, :signing_salt) || SecureRandom.urlsafe_base64(128)
 
   plug(Plug.Logger)
   plug(:put_secret_key_base)
