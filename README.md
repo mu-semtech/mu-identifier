@@ -166,6 +166,9 @@ All settings are configured through environment variables.
 * `LOG_INCOMING_ALLOWED_GROUPS`: log incoming allowed groups set on the incoming request when set to "true", "yes", "1" or "on".
 * `LOG_OUTGOING_ALLOWED_GROUPS`: log outgoing allowed groups set on the outgoing response when set to "true", "yes", "1" or "on".
 * `LOG_ALLOWED_GROUPS`: log incoming as well as outgoing allowed groups when set to "true", "yes", "1" or "on".
+* `SESSION_COOKIE_SECURE`: Set SECURE flag of the session cookie (see [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie))
+* `SESSION_COOKIE_HTTP_ONLY`: Set HTTP_ONLY flag of the session cookie (see [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie)), on by default.
+* `SESSION_COOKIE_SAME_SITE`: Set SAME_SITE flag of the session cookie (see [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie)), "Lax" by default unless `DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN_HEADER` is "*" then "None" by default.  This means the cookie is available only on your site unless you've also set the CORS header.
 
 
 ### Special headers
