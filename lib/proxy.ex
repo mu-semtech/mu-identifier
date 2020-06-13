@@ -12,6 +12,9 @@ defmodule Proxy do
   plug(Plug.Session,
     store: :cookie,
     key: "proxy_session",
+    secure: true,
+    http_only: true,
+    same_site: "lax"
     encryption_salt: @encryption_salt,
     signing_salt: @signing_salt,
     key_length: 64
