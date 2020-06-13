@@ -7,11 +7,17 @@ defmodule Manipulators.EnsureUserSession do
 
     frontend_connection =
       if Plug.Conn.get_session(frontend_connection, :proxy_user_id) do
+        if( Application.get_env(:mu_identifier, :log_session) ) do
+          IO.inspect( Plug.Conn.get_session(frontend_connection, :proxy_user_id),
+            label: "Keeping user id" )
+        end
         frontend_connection
       else
-        IO.puts("Creating new rand user_id")
-
         new_user_id = "http://mu.semte.ch/sessions/" <> UUID.uuid1()
+
+        if( Application.get_env(:mu_identifier, :log_session) ) do
+          IO.inspect( new_user_id, label: "Created new user id" )
+        end
 
         Plug.Conn.put_session(
           frontend_connection,

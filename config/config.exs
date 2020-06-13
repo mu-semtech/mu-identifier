@@ -40,7 +40,8 @@ config :mu_identifier,
   default_mu_auth_allowed_groups_header: System.get_env("DEFAULT_MU_AUTH_ALLOWED_GROUPS_HEADER"),
   log_allowed_groups: CH.system_boolean("LOG_ALLOWED_GROUPS"),
   log_incoming_allowed_groups: CH.system_boolean("LOG_INCOMING_ALLOWED_GROUPS"),
-  log_outgoing_allowed_groups: CH.system_boolean("LOG_OUTGOING_ALLOWED_GROUPS")
+  log_outgoing_allowed_groups: CH.system_boolean("LOG_OUTGOING_ALLOWED_GROUPS"),
+  log_session: CH.system_boolean("LOG_SESSION")
 
 config :plug_mint_proxy,
   author: :"mu-semtech",
