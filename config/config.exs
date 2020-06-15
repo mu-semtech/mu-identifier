@@ -34,7 +34,7 @@ defp calculate_same_site do
   )
 end
 
-defp calculate_same_site(_, same_site) when is_binay(same_site), do: same_site
+defp calculate_same_site(_, same_site) when is_binary(same_site), do: same_site
 defp calculate_same_site("*", nil), do: "None"
 defp calculate_same_site(nil, nil), do: "Lax"
 
