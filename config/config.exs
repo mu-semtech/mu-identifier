@@ -16,13 +16,13 @@ use Mix.Config
 #       metadata: [:user_id]
 
 defmodule CH do
-  def system_boolean(name) do
+  def system_boolean(name, default \\ false) do
     case String.downcase(System.get_env(name) || "") do
       "true" -> true
       "yes" -> true
       "1" -> true
       "on" -> true
-      _ -> false
+      _ -> default
     end
   end
 
