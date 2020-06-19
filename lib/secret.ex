@@ -16,7 +16,7 @@ defmodule Secret do
   end
 
   def init(_) do
-    {:ok, %{secret_key_base: Application.get_env(:proxy, :secret_key_base) || SecureRandom.urlsafe_base64(128)}}
+    {:ok, %{secret_key_base: Application.get_env(:mu_identifier, :secret_key_base) || SecureRandom.urlsafe_base64(128)}}
   end
 
   def handle_call({:secret_key_base}, _from, state) do

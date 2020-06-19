@@ -17,12 +17,16 @@ use Mix.Config
 
 defmodule CH do
   def system_boolean(name, default \\ false) do
-    case String.downcase(System.get_env(name) || "") do
-      "true" -> true
-      "yes" -> true
-      "1" -> true
-      "on" -> true
-      _ -> default
+    if(!System.get_env(name)) do
+      default
+    else
+      case String.downcase(System.get_env(name) || "") do
+        "true" -> true
+        "yes" -> true
+        "1" -> true
+        "on" -> true
+        _ -> false
+      end
     end
   end
 
@@ -42,14 +46,15 @@ config :mu_identifier,
   encryption_salt: System.get_env("MU_ENCRYPTION_SALT"),
   signing_salt: System.get_env("MU_SIGNING_SALT"),
   secret_key_base: System.get_env("MU_SECRET_KEY_BASE"),
-  default_access_control_allow_origin_header: System.get_env("DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN_HEADER"),
+  default_access_control_allow_origin_header:
+    System.get_env("DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN_HEADER"),
   default_mu_auth_allowed_groups_header: System.get_env("DEFAULT_MU_AUTH_ALLOWED_GROUPS_HEADER"),
   session_cookie_secure: CH.system_boolean("SESSION_COOKIE_SECURE", true),
   session_cookie_http_only: CH.system_boolean("SESSION_COOKIE_HTTP_ONLY", true),
   session_cookie_same_site: CH.calculate_same_site(),
-  log_allowed_groups: System.get_env("LOG_ALLOWED_GROUPS"),
-  log_incoming_allowed_groups: System.get_env("LOG_INCOMING_ALLOWED_GROUPS"),
-  log_outgoing_allowed_groups: System.get_env("LOG_OUTGOING_ALLOWED_GROUPS")
+  log_allowed_groups: CH.system_boolean("LOG_ALLOWED_GROUPS"),
+  log_incoming_allowed_groups: CH.system_boolean("LOG_INCOMING_ALLOWED_GROUPS"),
+  log_outgoing_allowed_groups: CH.system_boolean("LOG_OUTGOING_ALLOWED_GROUPS")
 
 config :plug_mint_proxy,
   author: :"mu-semtech",
@@ -60,7 +65,6 @@ config :plug_mint_proxy,
   log_connection_setup: CH.system_boolean("LOG_CONNECTION_SETUP"),
   log_request_body: CH.system_boolean("LOG_REQUEST_BODY"),
   log_response_body: CH.system_boolean("LOG_RESPONSE_BODY")
-
 
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
