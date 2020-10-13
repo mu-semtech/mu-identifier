@@ -88,7 +88,7 @@ These group names should be converted into a valid `mu-auth-allowed-groups` head
 We can convert the previous section to the following JSON string:
 
     "[{\"variables\":[],\"name\":\"public\"},{\"variables\":[],\"name\":\"clean\"}]"
-    
+
 This JSON string can be set in the environment of the mu-identifier.  It is common to place this in the docker-compose.yml as it is an application-wide setting that is most often shared across environments.
 
     # docker-compose.yml
@@ -114,7 +114,7 @@ A running stack should have an identifier.  In the docker-compose.yml it should 
         links:
           ...
         environment:
-          LOG_ALLOWED_GROUPS: on
+          LOG_ALLOWED_GROUPS: "on"
 
 After adding the environment variable, you have to pull the changes into the container
 
