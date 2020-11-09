@@ -49,7 +49,7 @@ config :mu_identifier,
   default_access_control_allow_origin_header:
     System.get_env("DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN_HEADER"),
   default_mu_auth_allowed_groups_header: System.get_env("DEFAULT_MU_AUTH_ALLOWED_GROUPS_HEADER"),
-  session_cookie_secure: CH.system_boolean("SESSION_COOKIE_SECURE", true),
+  session_cookie_secure: CH.system_boolean("SESSION_COOKIE_SECURE", false),
   session_cookie_http_only: CH.system_boolean("SESSION_COOKIE_HTTP_ONLY", true),
   session_cookie_same_site: CH.calculate_same_site(),
   log_allowed_groups: CH.system_boolean("LOG_ALLOWED_GROUPS"),
