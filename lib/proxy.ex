@@ -9,16 +9,14 @@ defmodule Proxy do
   plug(Plug.Logger)
   plug(:put_secret_key_base)
 
-  plug(Plug.Session,
-    store: :cookie,
-    key: "proxy_session",
-    secure: Application.get_env(:mu_identifier, :session_cookie_secure),
-    http_only: Application.get_env(:mu_identifier, :session_cookie_http_only),
-    same_site: Application.get_env(:mu_identifier, :session_cookie_same_site),
-    encryption_salt: @encryption_salt,
-    signing_salt: @signing_salt,
-    key_length: 64
-  )
+  plug Replug,
+    plug: { Plug.Session,
+            store: :cookie,
+            key: "proxy_session",
+            encryption_salt: { Proxy, :encryption_salt, [] },
+            signing_salt: { Proxy, :signing_salt, [] },
+            key_length: 64 },
+    opts: { Proxy, :opts_from_environment }
 
   plug(:dispatch)
 
@@ -50,4 +48,21 @@ defmodule Proxy do
       @manipulators
     )
   end
+
+  def encryption_salt do
+    @encryption_salt
+  end
+
+  def signing_salt do
+    @signing_salt
+  end
+
+  def opts_from_environment do
+    [
+      secure: IO.inspect(Application.get_env(:mu_identifier, :session_cookie_secure), label: "SECURE?"),
+      http_only: Application.get_env(:mu_identifier, :session_cookie_http_only),
+      same_site: Application.get_env(:mu_identifier, :session_cookie_same_site)
+    ]
+  end
+
 end
