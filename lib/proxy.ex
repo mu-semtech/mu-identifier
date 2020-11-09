@@ -59,7 +59,7 @@ defmodule Proxy do
 
   def opts_from_environment do
     [
-      secure: IO.inspect(Application.get_env(:mu_identifier, :session_cookie_secure), label: "SECURE?"),
+      secure: Application.get_env(:mu_identifier, :session_cookie_secure),
       http_only: Application.get_env(:mu_identifier, :session_cookie_http_only),
       same_site: Application.get_env(:mu_identifier, :session_cookie_same_site)
     ]
