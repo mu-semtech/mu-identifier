@@ -14,7 +14,7 @@ Add the identifier to the services block of your docker-compose.yml
 
     services:
       identifier:
-        image: semtech/mu-identifier:1.9.0
+        image: semtech/mu-identifier:1.9.1
         links:
            - dispatcher:dispatcher
 
