@@ -1,3 +1,4 @@
+---
 kind: pipeline
 type: docker
 name: push-latest
@@ -67,3 +68,16 @@ steps:
 trigger:
   event:
   - pull_request
+---
+kind: secret
+name: docker_username
+data: pwcSCOgDSIz0IitMZ9JHIseqkc4c0sKrQxfzyyu4ksj53ieiAqYQ
+---
+kind: secret
+name: docker_password
+data: RQ+rnHVRRqtDa1ijC4EJb9kLYXKW0+7Ks355oEzmldumbqgFZCXW/4H6B/MJ2oe4teTcavXuTg1a2A4SqBfAdw==
+---
+kind: signature
+hmac: dbb7ee17a966054f65d228ce07715cd7dcf85a24909ec998c96bbde6efef1070
+
+...
