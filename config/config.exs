@@ -55,7 +55,8 @@ config :mu_identifier,
   log_allowed_groups: CH.system_boolean("LOG_ALLOWED_GROUPS"),
   log_incoming_allowed_groups: CH.system_boolean("LOG_INCOMING_ALLOWED_GROUPS"),
   log_outgoing_allowed_groups: CH.system_boolean("LOG_OUTGOING_ALLOWED_GROUPS"),
-  log_session: CH.system_boolean("LOG_SESSION")
+  log_session: CH.system_boolean("LOG_SESSION"),
+  idle_timeout: System.get_env("IDLE_TIMEOUT", "60000") |> String.to_integer
 
 config :plug_mint_proxy,
   author: :"mu-semtech",
