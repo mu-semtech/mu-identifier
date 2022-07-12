@@ -11,8 +11,15 @@ defmodule MuIdentifier do
     IO.puts("Running Proxy with Cowboy on port #{port}")
 
     children = [
-      {Secret,%{}},
-      {Plug.Cowboy, scheme: :http, plug: Proxy, options: [port: port, compress: true]}
+      {Secret, %{}},
+      {Plug.Cowboy,
+       scheme: :http,
+       plug: Proxy,
+       options: [
+         port: port,
+         compress: true,
+         protocol_options: [idle_timeout: Application.get_env(:mu_identifier, :idle_timeout)]
+       ]}
     ]
 
     Logger.info("Mu Identifier starting on port #{port}")
