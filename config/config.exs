@@ -56,7 +56,7 @@ config :mu_identifier,
   log_incoming_allowed_groups: CH.system_boolean("LOG_INCOMING_ALLOWED_GROUPS"),
   log_outgoing_allowed_groups: CH.system_boolean("LOG_OUTGOING_ALLOWED_GROUPS"),
   log_session: CH.system_boolean("LOG_SESSION"),
-  idle_timeout: System.get_env("IDLE_TIMEOUT", "60000") |> String.to_integer
+  idle_timeout: System.get_env("IDLE_TIMEOUT", "300000") |> String.to_integer
   override_vary_header: System.get_env("OVERRIDE_VARY_HEADER")
 
 config :plug_mint_proxy,
