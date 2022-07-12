@@ -25,7 +25,8 @@ defmodule Proxy do
     Manipulators.PutAllowedGroupsInSession,
     Manipulators.ClearMuInternalKeys,
     Manipulators.PutCacheClearHeaders,
-    Manipulators.AddCorsHeader
+    Manipulators.AddCorsHeader,
+    Manipulators.OverrideVaryHeader
   ]
   @manipulators ProxyManipulatorSettings.make_settings(
                   @request_manipulators,
