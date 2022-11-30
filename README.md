@@ -69,7 +69,7 @@ A JavaScript service could look like this:
     app.post('/login', function (req, res) {
       // update database state
       res
-        .header( 'mu-auth-allow-groups', 'CLEAR' )
+        .header( 'mu-auth-allowed-groups', 'CLEAR' )
         .send( /* body */ );
     });
 
