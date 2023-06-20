@@ -13,7 +13,7 @@ defmodule Proxy.Mixfile do
   # Type `mix help compile.app` for more information
   def application do
     [
-      extra_applications: [:logger, :plug_mint_proxy, :cowboy, :plug],
+      extra_applications: [:logger, :plug_mint_proxy, :plug],
       mod: {MuIdentifier, []},
       env: []
     ]
@@ -30,6 +30,7 @@ defmodule Proxy.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [{:plug_mint_proxy, git: "https://github.com/madnificent/plug-mint-proxy.git", tag: "v0.2.0"},
+     {:bandit, "0.7.7" },
      {:uuid, "~> 1.1"},
      {:replug, "~> 0.1.0"},
      {:secure_random, "~> 0.5"},
