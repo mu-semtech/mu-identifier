@@ -1,4 +1,4 @@
-FROM madnificent/elixir-server:1.11.0
+FROM madnificent/elixir-server:1.12.0
 
 COPY . /app
 
