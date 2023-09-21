@@ -20,7 +20,11 @@ defmodule Proxy do
 
   plug(:dispatch)
 
-  @request_manipulators [Manipulators.EnsureUserSession, Manipulators.AddCustomRequestHeaders]
+  @request_manipulators [
+    Manipulators.ClearMuInternalKeys,
+    Manipulators.EnsureUserSession,
+    Manipulators.AddCustomRequestHeaders
+  ]
   @response_manipulators [
     Manipulators.PutAllowedGroupsInSession,
     Manipulators.ClearMuInternalKeys,
