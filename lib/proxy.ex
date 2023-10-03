@@ -30,7 +30,8 @@ defmodule Proxy do
     Manipulators.ClearMuInternalKeys,
     Manipulators.PutCacheClearHeaders,
     Manipulators.AddCorsHeader,
-    Manipulators.OverrideVaryHeader
+    Manipulators.OverrideVaryHeader,
+    Manipulators.ChunkedResponse
   ]
   @manipulators ProxyManipulatorSettings.make_settings(
                   @request_manipulators,
