@@ -29,7 +29,7 @@ defmodule Proxy.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    [{:plug_mint_proxy, git: "https://github.com/madnificent/plug-mint-proxy.git", tag: "v0.2.0"},
+    [{:plug_mint_proxy, git: "https://github.com/madnificent/plug-mint-proxy.git", tag: "v0.3.0"},
      {:bandit, "0.7.7" },
      {:uuid, "~> 1.1"},
      {:replug, "~> 0.1.0"},
