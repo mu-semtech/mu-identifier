@@ -8,18 +8,14 @@ defmodule MuIdentifier do
 
   def start(_argv, _args) do
     port = 80
-    IO.puts("Running Proxy with Cowboy on port #{port}")
+    IO.puts("Running Proxy with Bandit on port #{port}")
 
     children = [
       {Secret, %{}},
-      {Plug.Cowboy,
+      {Bandit,
        scheme: :http,
        plug: Proxy,
-       options: [
-         port: port,
-         compress: true,
-         protocol_options: [idle_timeout: Application.get_env(:mu_identifier, :idle_timeout)]
-       ]}
+       port: port}
     ]
 
     Logger.info("Mu Identifier starting on port #{port}")
