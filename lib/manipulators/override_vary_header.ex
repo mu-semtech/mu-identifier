@@ -13,12 +13,10 @@ defmodule Manipulators.OverrideVaryHeader do
     without_vary_header =
       headers
       |> List.keydelete("vary", 0)
-      |> IO.inspect(label: "headers without vary")
 
     headers =
       if override_vary_header do
         [{"vary", override_vary_header} | without_vary_header]
-        |> IO.inspect(label: "headers with new vary")
       else
         if has_vary_header do
           [{"vary", "accept, cookie"} | without_vary_header]
