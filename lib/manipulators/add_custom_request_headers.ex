@@ -8,6 +8,7 @@ defmodule Manipulators.AddCustomRequestHeaders do
       headers
       |> List.keydelete("mu-session-id", 0)
       |> List.keydelete("mu-call-id", 0)
+      |> List.keydelete("mu-call-id-trail", 0)
       |> List.keydelete("mu-auth-allowed-groups", 0)
 
     new_headers = [
