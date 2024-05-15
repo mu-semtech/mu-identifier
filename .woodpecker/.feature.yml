@@ -2,7 +2,7 @@ pipeline:
   build-and-push:
     image: woodpeckerci/plugin-docker-buildx
     settings:
-      platforms: linux/amd64,linux/arm64
+      platforms: linux/amd64 # ,linux/arm64 # segfaults, disable for now
       repo: "${CI_REPO_OWNER##mu-}/${CI_REPO_NAME%%-service}"
       tags: "feature-${CI_COMMIT_BRANCH##feature/}"
     secrets: [docker_username, docker_password]
