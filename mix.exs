@@ -31,6 +31,7 @@ defmodule Proxy.Mixfile do
   defp deps do
     [{:plug_mint_proxy, git: "https://github.com/madnificent/plug-mint-proxy.git", tag: "v0.2.0"},
      {:uuid, "~> 1.1"},
+     {:cowboy, "~> 2.10.0"},
      {:replug, "~> 0.1.0"},
      {:secure_random, "~> 0.5"},
      {:observer_cli, "~> 1.5"}]
