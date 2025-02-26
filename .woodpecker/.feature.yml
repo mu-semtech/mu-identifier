@@ -1,11 +1,14 @@
 pipeline:
   build-and-push:
-    image: woodpeckerci/plugin-docker-buildx
+    image: woodpeckerci/plugin-docker-buildx:5.2.1
     settings:
-      platforms: linux/amd64,linux/arm64
+      platforms: linux/arm64,linux/amd64
       repo: "${CI_REPO_OWNER##mu-}/${CI_REPO_NAME%%-service}"
       tags: "feature-${CI_COMMIT_BRANCH##feature/}"
-    secrets: [docker_username, docker_password]
+      ssh-key:
+        from_secret: arm_ssh_key
+      remote-builders: root@10.0.0.2
+    secrets: [ "docker_username", "docker_password" ]
     when:
       event: push
       branch: feature/*
