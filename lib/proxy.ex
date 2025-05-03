@@ -63,11 +63,18 @@ defmodule Proxy do
   end
 
   def opts_from_environment do
-    [
+    base_opts = [
       secure: Application.get_env(:mu_identifier, :session_cookie_secure),
       http_only: Application.get_env(:mu_identifier, :session_cookie_http_only),
       same_site: Application.get_env(:mu_identifier, :session_cookie_same_site)
     ]
+
+    max_age = Application.get_env(:mu_identifier, :session_cookie_max_age)
+
+    case max_age do
+      nil -> base_opts
+      age -> base_opts ++ [max_age: String.to_integer(age)]
+    end
   end
 
 end
