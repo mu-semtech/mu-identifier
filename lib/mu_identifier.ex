@@ -18,7 +18,10 @@ defmodule MuIdentifier do
        options: [
          port: port,
          compress: true,
-         protocol_options: [idle_timeout: Application.get_env(:mu_identifier, :idle_timeout)]
+         protocol_options: [
+           idle_timeout: Application.get_env(:mu_identifier, :idle_timeout),
+           max_request_line_length: Application.get_env(:mu_identifier, :max_url_length)
+         ]
        ]}
     ]
 
