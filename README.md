@@ -4,7 +4,50 @@ An HTTP proxy for identifying sessions so microservices can act on them.
 
 The mu-identifier doesn't have much information on the user's session.  It identifies a specific Browser Agent (a specific browser on a specific device) so other services can attach information to them.  The session identifier is passed through the `MU-SESSION-ID` header to the backend services. The identifier is also responsible for other things in which we detect the user, currently caching the access rights of the current user.
 
-## Tutorials
+## Tutorial: Attaching data to the user’s session
+The mu-project repository offers a good starting point to bootstrap a new mu.semte.ch project. The docker-compose.yml to start from consists of 3 core components: mu-identifier, mu-dispatcher and a Virtuoso triple store. The dispatcher will dispatch the incoming requests to the appropriate microservice while the triple store is used for data storage. In this article we will focus on mu-identifier – a core microservice for session identification – and explain how you can attach data to the user’s session in your own microservice.
+
+### Request flow
+
+Putting it very simple, an HTTP request in mu.semte.ch goes through the following flow from the frontend to the microservice:
+
+![mu.semte.ch request flow](http://mu.semte.ch/wp-content/uploads/2017/04/request-flow-1024x516.png)
+
+A request originating from the frontend, first passes through the mu-identifier which will identify the session. Next, the request is forwarded to the mu-dispatcher, which will on its turn forward the request to the correct microservice. One of login, registration, files or products in the example above. Finally, the microservice handles the request, hereby possibly reading/writing to the triple store.
+
+But what does ‘identifying the session’ actually mean? Mu-identifier will generate and associate a session URI with each browser session and pass this URI as a HTTP request header to the microservices in the backend. The session identifier is stored as a cookie in the frontend such that future requests originating from the same browser session will be associated with the previously generated session URI by the identifier.
+
+### Using the session in your microservice
+
+Some applications need to associate data with a user’s session. For example, if you have a web shop, you may want the user to put products in a basket before buying them. A microservice in the backend has to associate the products with the session. This can be easily achieved now as the session has already been identified by mu-identifier. The microservice only needs to take care of the backend. Just retrieve the session URI from the mu-session-id header and attach the data to it. Some templates, like the mu-ruby-template, even [provide a helper method to get the session URI](https://github.com/mu-semtech/mu-ruby-template#session_id_headerrequest).
+
+A microservice has the choice to keep the associated session data in memory or persist it in the triple store. By doing the latter, which is in line with the general idea of the mu.semte.ch platform, the associated data will be automatically available for other microservices. Using the `mu-ruby-template`, attaching data to the session can for example be done as follows:
+```ruby
+...
+session\_uri = session\_id\_header(request)
+cart\_id = generate\_uuid()
+
+query = " INSERT DATA {"
+query += "  GRAPH <#{graph}> {"
+query += "    <#{session\_uri}> <http://schema.org/owns> <http://mu.semte.ch/examples/carts/#{cart\_id}> ."
+query += "    <http://mu.semte.ch/examples/carts/#{cart\_id}> <http://mu.semte.ch/vocabularies/ext/webshop/contains> <http://mu.semte.ch/examples/products/1> ."
+query += "  }"
+query += "}"
+
+update(query)
+...
+```
+
+### What about users and accounts?
+It’s important to note that mu-identifier doesn’t have anything to do with users and accounts. The session URIs will always be generated, regardless of the application having  the concept of users, registration and/or authentication. Associating a user and/or account with the session is just an example of how you can attach data to the session URI in your microservice as done by the [login service](https://github.com/mu-semtech/login-service).
+
+### Conclusion
+Mu-identifier is a core component in the mu.semte.ch application architecture. It’s a very simple microservice that just maps a browser session to a session URI and passes this URI to the backend. Microservices can easily attach custom data to the session which will be, once written to the triple store, automatically available to the other microservices.
+
+*This document has been adapted from Erika Pauwels' mu.semte.ch article. You can view it [here](https://mu.semte.ch/2017/04/27/attaching-data-to-the-users-session/)*
+
+
+## How-to guides
 
 ### Add the identifier to a stack
 
@@ -20,7 +63,6 @@ Add the identifier to the services block of your docker-compose.yml
 
 As a primitive, the identifier will forward all requests to the dispatcher.  This snippet is sufficient to add the identifier to a stack.
 
-## How-to guides
 
 ### How to make a stack accessible from an external host (CORS)
 
