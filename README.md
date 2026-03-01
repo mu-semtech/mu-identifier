@@ -102,6 +102,20 @@ In order to set this string, we need to recreate the identifier with the new env
     > cd /path/to/your/app
     > docker-compose up -d
 
+### Issue a JWT
+
+Clients which prefer not to use cookies may choose a JWT.  The identifier will create and manage the JWT when it receives the right `Mu-Session-Delivery-Mode` header in the response.
+
+To issue a JWT, the backend service sets the delivery mode in its response:
+
+    Mu-Session-Delivery-Mode: https://services.semantic.works/mu-identifier/session-delivery/jwt-header
+
+The identifier generates a signed `Mu-Auth-Token` JWT and attaches it to the response.  The client stores this token and sends it on subsequent requests:
+
+    Authorization: Bearer <token>
+
+The session URI and allowed groups are encrypted inside the token and not visible to the client.  When the session state changes (e.g. allowed groups are updated), a new token is issued carrying the updated session state.
+
 ### Log the allowed groups in a running stack
 
 A running stack should have an identifier.  In the docker-compose.yml it should be in the `identifier` service.  The `Mu-Auth-Allowed-Groups` header is received from the user's cookie (if it was calculated) and is sent back to the user.  Overrides of this kind are most often stored in the `docker-compose.override.yml` because they tend to be deployment-specific.
@@ -162,7 +176,7 @@ All settings are configured through environment variables.
 * `DEFAULT_MU_AUTH_ALLOWED_GROUPS_HEADER`: string used as default `Mu-Auth-Allowed-Groups` for sessions which don't contain these groups yet and which may use defaults (eg: `"[{\"variables\":[],\"name\":\"public\"}]"`).
 * `MU_SECRET_KEY_BASE`: base string of base string of at least 64 bytes used to generate secret keys, set this on production systems to avoid overlap.
 * `MU_ENCRYPTION_SALT`: a salt used with `MU_SECRET_KEY_BASE` to generate a key for encrypting/decrypting a cookie, set this on production systems so sessions survive restarts of the identifier.
-* `MU_SIGNING_SALT`: a salt used with `MU_SECRET_KEY_BASE` to generate a key for signing/verifying a cookie, set this on production systems so sessions survive restarts of the identifier.
+* `MU_SIGNING_SALT`: a salt used with `MU_SECRET_KEY_BASE` to derive keys for signing and encrypting session data (both for cookies and JWT tokens).  Set this on production systems so sessions and tokens survive restarts of the identifier.
 * `LOG_INCOMING_ALLOWED_GROUPS`: log incoming allowed groups set on the incoming request when set to "true", "yes", "1" or "on".
 * `LOG_OUTGOING_ALLOWED_GROUPS`: log outgoing allowed groups set on the outgoing response when set to "true", "yes", "1" or "on".
 * `LOG_ALLOWED_GROUPS`: log incoming as well as outgoing allowed groups when set to "true", "yes", "1" or "on".
@@ -190,3 +204,16 @@ When no `Cache-Control` header is supplied or the header contains `no-cache` the
     cache-control: no-cache
     pragma: no-cache
     expires: -1
+
+#### Received `Mu-Session-Delivery-Mode` from backend
+
+Controls how the identifier delivers session state to the client.  When not set, the identifier defaults to cookie-based delivery.  Accepted values are:
+
+* `https://services.semantic.works/mu-identifier/session-delivery/cookie` or `:cookie`: use cookie-based session delivery (the default).
+* `https://services.semantic.works/mu-identifier/session-delivery/jwt-header` or `:jwt-header`: issue a `Mu-Auth-Token` JWT which the client should send back as `Authorization: Bearer <token>`.
+
+Any other value causes the identifier to return an error.  The header is not forwarded to the client.
+
+#### Passes `Mu-Auth-Token` to client
+
+Present in the response when the backend has requested JWT delivery mode.  Contains a signed JWT encoding the session state.  Clients should send this value as `Authorization: Bearer <token>` on subsequent requests.

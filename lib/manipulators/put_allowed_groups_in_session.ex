@@ -18,13 +18,15 @@ defmodule Manipulators.PutAllowedGroupsInSession do
         "CLEAR" ->
           # Set CLEAR as the authorization group so we can pick it
           # up on the next request
-          Plug.Conn.put_session(frontend_connection, :mu_auth_allowed_groups, authorization)
+          frontend_connection
+          |> Plug.Conn.put_session(:mu_auth_allowed_groups, authorization)
 
         nil ->
           frontend_connection
 
         _ ->
-          Plug.Conn.put_session(frontend_connection, :mu_auth_allowed_groups, authorization)
+          frontend_connection
+          |> Plug.Conn.put_session(:mu_auth_allowed_groups, authorization)
       end
 
     {headers, {frontend_connection, backend_connection}}

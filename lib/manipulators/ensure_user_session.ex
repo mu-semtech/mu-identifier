@@ -26,6 +26,14 @@ defmodule Manipulators.EnsureUserSession do
         )
       end
 
+    previous_session_state = %{
+      user_id: Plug.Conn.get_session(frontend_connection, :proxy_user_id),
+      allowed_groups: Plug.Conn.get_session(frontend_connection, :mu_auth_allowed_groups),
+      valid_until: frontend_connection.assigns[:session_valid_until]
+    }
+
+    frontend_connection = Plug.Conn.assign(frontend_connection, :mu_previous_session_state, previous_session_state)
+
     {headers, {frontend_connection, backend_connection}}
   end
 

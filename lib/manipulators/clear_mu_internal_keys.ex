@@ -12,6 +12,12 @@ defmodule Manipulators.ClearMuInternalKeys do
       |> List.keydelete("cache-keys", 0)
       |> List.keydelete("clear-keys", 0)
       |> List.keydelete("mu-auth-sudo", 0)
+      # Token and cookie material must not be forwarded to backends,
+      # and backends must not be able to set their own cookies or tokens.
+      |> List.keydelete("cookie", 0)
+      |> List.keydelete("set-cookie", 0)
+      |> List.keydelete("mu-auth-token", 0)
+      |> List.keydelete("mu-session-delivery-mode", 0)
 
     { headers, connection }
   end

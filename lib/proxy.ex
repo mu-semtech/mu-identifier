@@ -22,12 +22,16 @@ defmodule Proxy do
 
   @request_manipulators [
     Manipulators.ClearMuInternalKeys,
+    Manipulators.ReadSessionFromCookie,
+    Manipulators.ReadSessionFromJwt,
     Manipulators.EnsureUserSession,
     Manipulators.AddCustomRequestHeaders
   ]
   @response_manipulators [
     Manipulators.PutAllowedGroupsInSession,
+    Manipulators.DetermineSessionDeliveryMode,
     Manipulators.ClearMuInternalKeys,
+    Manipulators.UpgradeSessionCookieToJwtToken,
     Manipulators.PutCacheClearHeaders,
     Manipulators.AddCorsHeader,
     Manipulators.OverrideVaryHeader
