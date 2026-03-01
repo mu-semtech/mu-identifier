@@ -30,6 +30,13 @@ defmodule CH do
     end
   end
 
+  def system_integer(name, default \\ nil) do
+    case System.get_env(name) do
+      nil -> default
+      v   -> String.to_integer(v)
+    end
+  end
+
   def calculate_same_site do
     calculate_same_site(
       System.get_env("DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN_HEADER"),
@@ -40,6 +47,7 @@ defmodule CH do
   defp calculate_same_site(_, same_site) when is_binary(same_site), do: same_site
   defp calculate_same_site("*", nil), do: "None"
   defp calculate_same_site(nil, nil), do: "Lax"
+
 end
 
 config :mu_identifier,
@@ -56,8 +64,8 @@ config :mu_identifier,
   log_incoming_allowed_groups: CH.system_boolean("LOG_INCOMING_ALLOWED_GROUPS"),
   log_outgoing_allowed_groups: CH.system_boolean("LOG_OUTGOING_ALLOWED_GROUPS"),
   log_session: CH.system_boolean("LOG_SESSION"),
-  idle_timeout: System.get_env("IDLE_TIMEOUT", "300000") |> String.to_integer,
-  max_url_length: System.get_env("MAX_URL_LENGTH", "10000") |> String.to_integer,
+  idle_timeout: CH.system_integer("IDLE_TIMEOUT", 300_000),
+  max_url_length: CH.system_integer("MAX_URL_LENGTH", 10_000),
   override_vary_header: System.get_env("OVERRIDE_VARY_HEADER")
 
 config :plug_mint_proxy,
