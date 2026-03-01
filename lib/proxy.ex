@@ -25,6 +25,7 @@ defmodule Proxy do
     Manipulators.ReadSessionFromCookie,
     Manipulators.ReadSessionFromJwt,
     Manipulators.EnsureUserSession,
+    Manipulators.EnforceSessionRevocation,
     Manipulators.AddCustomRequestHeaders
   ]
   @response_manipulators [

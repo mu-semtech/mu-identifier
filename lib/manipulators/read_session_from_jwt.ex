@@ -23,6 +23,7 @@ defmodule Manipulators.ReadSessionFromJwt do
               frontend_connection
               |> Plug.Conn.put_session(:proxy_user_id, session_id)
               |> Plug.Conn.put_session(:mu_auth_allowed_groups, Map.get(private_claims, "allowed_groups"))
+              |> Plug.Conn.put_session(:groups_issued_at, Map.get(private_claims, "allowed_groups_set_at"))
               |> Plug.Conn.assign(:session_valid_until, expires_at)
               |> Plug.Conn.assign(:session_delivery_mode, :jwt_header)
 

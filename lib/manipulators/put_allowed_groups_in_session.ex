@@ -20,6 +20,7 @@ defmodule Manipulators.PutAllowedGroupsInSession do
           # up on the next request
           frontend_connection
           |> Plug.Conn.put_session(:mu_auth_allowed_groups, authorization)
+          |> Plug.Conn.put_session(:groups_issued_at, System.os_time(:second))
 
         nil ->
           frontend_connection
@@ -27,6 +28,7 @@ defmodule Manipulators.PutAllowedGroupsInSession do
         _ ->
           frontend_connection
           |> Plug.Conn.put_session(:mu_auth_allowed_groups, authorization)
+          |> Plug.Conn.put_session(:groups_issued_at, System.os_time(:second))
       end
 
     {headers, {frontend_connection, backend_connection}}

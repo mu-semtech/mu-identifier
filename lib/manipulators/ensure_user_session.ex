@@ -13,7 +13,7 @@ defmodule Manipulators.EnsureUserSession do
         end
         frontend_connection
       else
-        new_user_id = "http://mu.semte.ch/sessions/" <> UUID.uuid1()
+        new_user_id = new_session_uri()
 
         if( Application.get_env(:mu_identifier, :log_session) ) do
           IO.inspect( new_user_id, label: "Created new user id" )
@@ -35,6 +35,10 @@ defmodule Manipulators.EnsureUserSession do
     frontend_connection = Plug.Conn.assign(frontend_connection, :mu_previous_session_state, previous_session_state)
 
     {headers, {frontend_connection, backend_connection}}
+  end
+
+  def new_session_uri do
+    "http://mu.semte.ch/sessions/" <> UUID.uuid1()
   end
 
   @impl true

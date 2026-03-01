@@ -116,6 +116,25 @@ The identifier generates a signed `Mu-Auth-Token` JWT and attaches it to the res
 
 The session URI and allowed groups are encrypted inside the token and not visible to the client.  When the session state changes (e.g. allowed groups are updated), a new token is issued carrying the updated session state.
 
+### Revoke a session or allowed groups
+
+A session or allowed groups string can be revoked from within the running Docker container.
+
+Revoke a session URI:
+
+    > docker exec <identifier-container> /app/bin/mu_identifier eval 'SessionRevocation.revoke_mu_session_id("http://mu.semte.ch/sessions/...", :clear_allowed_groups)'
+
+Revoke all sessions holding a specific allowed-groups string:
+
+    > docker exec <identifier-container> /app/bin/mu_identifier eval 'SessionRevocation.revoke_mu_auth_allowed_groups_string("[{\"name\":\"public\",\"variables\":[]}]", :clear_allowed_groups)'
+
+The second argument is the revocation strategy:
+
+* `:clear_allowed_groups`: clears the cached allowed groups so the backend recalculates access rights on the next request.
+* `:clear_session`: additionally issues a new session URI, starting a fresh session.
+
+Note that revocations are stored in memory and do not survive a restart of the identifier container.
+
 ### Log the allowed groups in a running stack
 
 A running stack should have an identifier.  In the docker-compose.yml it should be in the `identifier` service.  The `Mu-Auth-Allowed-Groups` header is received from the user's cookie (if it was calculated) and is sent back to the user.  Overrides of this kind are most often stored in the `docker-compose.override.yml` because they tend to be deployment-specific.

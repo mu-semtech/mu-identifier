@@ -7,7 +7,7 @@ defmodule Manipulators.ReadSessionFromCookie do
       IO.inspect(Plug.Conn.get_session(frontend_connection, :proxy_user_id), label: "Session id from cookie")
     end
 
-    frontend_connection = Plug.Conn.assign(frontend_connection, :session_mode, :cookie)
+    frontend_connection = Plug.Conn.assign(frontend_connection, :session_delivery_mode, :cookie)
 
     {headers, {frontend_connection, backend_connection}}
   end

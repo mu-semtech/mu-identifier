@@ -65,6 +65,7 @@ config :mu_identifier,
   log_outgoing_allowed_groups: CH.system_boolean("LOG_OUTGOING_ALLOWED_GROUPS"),
   log_session: CH.system_boolean("LOG_SESSION"),
   debug_session: CH.system_boolean("DEBUG_SESSION"),
+  default_session_ttl_seconds: CH.system_integer("DEFAULT_SESSION_TTL_SECONDS"),
   idle_timeout: CH.system_integer("IDLE_TIMEOUT", 300_000),
   max_url_length: CH.system_integer("MAX_URL_LENGTH", 10_000),
   override_vary_header: System.get_env("OVERRIDE_VARY_HEADER")
