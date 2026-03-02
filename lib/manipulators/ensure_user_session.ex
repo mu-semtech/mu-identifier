@@ -3,8 +3,6 @@ defmodule Manipulators.EnsureUserSession do
 
   @impl true
   def headers(headers, {frontend_connection, backend_connection}) do
-    frontend_connection = Plug.Conn.fetch_session(frontend_connection)
-
     frontend_connection =
       if Plug.Conn.get_session(frontend_connection, :proxy_user_id) do
         if( Application.get_env(:mu_identifier, :log_session) ) do

@@ -6,14 +6,14 @@ defmodule Manipulators.UpgradeSessionCookieToJwtToken do
     headers =
       if frontend_connection.assigns[:emit_jwt] do
         expires_at = frontend_connection.assigns[:session_valid_until]
-        session_id = Plug.Conn.get_session(frontend_connection, :proxy_user_id)
-        groups = Plug.Conn.get_session(frontend_connection, :mu_auth_allowed_groups)
-        groups_set_at = Plug.Conn.get_session(frontend_connection, :groups_issued_at)
+        mu_session_id = Plug.Conn.get_session(frontend_connection, :proxy_user_id)
+        allowed_groups = Plug.Conn.get_session(frontend_connection, :mu_auth_allowed_groups)
+        groups_issued_at = Plug.Conn.get_session(frontend_connection, :groups_issued_at)
 
         private =
-          %{"session_id" => session_id}
-          |> maybe_put("allowed_groups", groups)
-          |> maybe_put("allowed_groups_set_at", groups_set_at)
+          %{"session_id" => mu_session_id}
+          |> maybe_put("allowed_groups", allowed_groups)
+          |> maybe_put("allowed_groups_set_at", groups_issued_at)
 
         [{"mu-auth-token", JwtToken.encode(expires_at, private)} | headers]
       else
