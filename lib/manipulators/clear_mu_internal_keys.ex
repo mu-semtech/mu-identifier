@@ -8,6 +8,7 @@ defmodule Manipulators.ClearMuInternalKeys do
       |> List.keydelete("x-cache", 0)
       |> List.keydelete("mu-auth-allowed-groups", 0)
       |> List.keydelete("mu-auth-used-groups", 0)
+      |> List.keydelete("mu-auth-scope", 0)
       |> List.keydelete("cache-keys", 0)
       |> List.keydelete("clear-keys", 0)
       |> List.keydelete("mu-auth-sudo", 0)
