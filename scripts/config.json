@@ -1,0 +1,29 @@
+{
+  "version": "0.3",
+  "scripts": [
+    {
+      "documentation": {
+        "command": "revoke-session",
+        "description": "Revoke a session URI, clearing allowed groups or starting a fresh session",
+        "arguments": ["session-uri", "strategy", "persist-seconds"]
+      },
+      "environment": {
+        "interactive": false,
+        "join_networks": true,
+        "script": "revoke-session/run.sh"
+      }
+    },
+    {
+      "documentation": {
+        "command": "revoke-allowed-groups",
+        "description": "Revoke all sessions holding a specific allowed-groups string",
+        "arguments": ["allowed-groups-string", "strategy", "persist-seconds"]
+      },
+      "environment": {
+        "interactive": false,
+        "join_networks": true,
+        "script": "revoke-allowed-groups/run.sh"
+      }
+    }
+  ]
+}
