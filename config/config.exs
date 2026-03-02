@@ -37,6 +37,13 @@ defmodule CH do
     end
   end
 
+  def system_atom(name, default \\ nil) do
+    case System.get_env(name) do
+      nil -> default
+      v -> String.to_atom(v)
+    end
+  end
+
   def calculate_same_site do
     calculate_same_site(
       System.get_env("DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN_HEADER"),
@@ -57,7 +64,6 @@ config :mu_identifier,
   default_access_control_allow_origin_header:
     System.get_env("DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN_HEADER"),
   default_mu_auth_allowed_groups_header: System.get_env("DEFAULT_MU_AUTH_ALLOWED_GROUPS_HEADER"),
-  session_cookie_max_age:  System.get_env("SESSION_COOKIE_MAX_AGE"),
   session_cookie_secure: CH.system_boolean("SESSION_COOKIE_SECURE", false),
   session_cookie_http_only: CH.system_boolean("SESSION_COOKIE_HTTP_ONLY", true),
   session_cookie_same_site: CH.calculate_same_site(),
@@ -67,6 +73,9 @@ config :mu_identifier,
   log_session: CH.system_boolean("LOG_SESSION"),
   debug_session: CH.system_boolean("DEBUG_SESSION"),
   default_session_max_age_seconds: CH.system_integer("DEFAULT_SESSION_MAX_AGE_SECONDS"),
+  session_max_age_strategy: CH.system_atom("SESSION_MAX_AGE_STRATEGY"),
+  session_max_refresh_age_seconds: CH.system_integer("SESSION_MAX_REFRESH_AGE_SECONDS"),
+  session_max_refresh_age_strategy: CH.system_atom("SESSION_MAX_REFRESH_AGE_STRATEGY"),
   idle_timeout: CH.system_integer("IDLE_TIMEOUT", 300_000),
   max_url_length: CH.system_integer("MAX_URL_LENGTH", 10_000),
   override_vary_header: System.get_env("OVERRIDE_VARY_HEADER")

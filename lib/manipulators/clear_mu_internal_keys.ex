@@ -18,6 +18,8 @@ defmodule Manipulators.ClearMuInternalKeys do
       |> List.keydelete("set-cookie", 0)
       |> List.keydelete("mu-auth-token", 0)
       |> List.keydelete("mu-session-delivery-mode", 0)
+      |> List.keydelete("mu-session-valid-until", 0)
+      |> List.keydelete("mu-previous-session-id", 0)
 
     { headers, connection }
   end

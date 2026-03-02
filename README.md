@@ -139,6 +139,29 @@ An optional third argument sets how long the revocation entry persists in second
 
 Note that revocations are stored in memory and do not survive a restart of the identifier container.
 
+### Configure session expiry
+
+Sessions live forever by default.  The identifier supports two independent expiry policies: a maximum absolute age and an idle timeout.
+
+**Maximum session age**
+
+A backend service declares how long a session should remain valid by setting `Mu-Session-Valid-Until` (unix timestamp in seconds) in its response.  When `DEFAULT_SESSION_MAX_AGE_SECONDS` is set, the identifier applies that as a default for sessions without an explicit expiry.
+
+When a session exceeds its max age, `SESSION_MAX_AGE_STRATEGY` is applied:
+
+* `clear_allowed_groups`: clears cached access rights so the backend recalculates them on the next request.
+* `clear_session`: starts a fresh session as if it were the first connection.  The backend receives the previous session URI in `Mu-Previous-Session-Id`.
+
+**Idle timeout**
+
+`SESSION_MAX_REFRESH_AGE_SECONDS` sets the maximum time a session may go without a request before `SESSION_MAX_REFRESH_AGE_STRATEGY` is applied.  The same strategies are available.
+
+Note that lowering `SESSION_MAX_REFRESH_AGE_SECONDS` tightens the idle window retroactively for existing sessions, since stored activity timestamps are compared against the current config value.
+
+**Client-side expiry information**
+
+The identifier adds `Mu-Session-Expires-In` and `Mu-Session-Refresh-Expires-In` (in seconds) to responses so clients can track expiry without depending on server clock synchronisation.
+
 ### Log the allowed groups in a running stack
 
 A running stack should have an identifier.  In the docker-compose.yml it should be in the `identifier` service.  The `Mu-Auth-Allowed-Groups` header is received from the user's cookie (if it was calculated) and is sent back to the user.  Overrides of this kind are most often stored in the `docker-compose.override.yml` because they tend to be deployment-specific.
@@ -207,7 +230,10 @@ All settings are configured through environment variables.
 * `SESSION_COOKIE_SECURE`: Set SECURE flag of the session cookie (see [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie))
 * `SESSION_COOKIE_HTTP_ONLY`: Set HTTP_ONLY flag of the session cookie (see [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie)), on by default.
 * `SESSION_COOKIE_SAME_SITE`: Set SAME_SITE flag of the session cookie (see [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie)), "Lax" by default unless `DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN_HEADER` is "*" then "None" by default.  This means the cookie is available only on your site unless you've also set the CORS header.
-* `SESSION_COOKIE_MAX_AGE`: Set the number of seconds until the cookie expires. By default this is not set and the cookie is a [session cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie#expiresdate).
+* `DEFAULT_SESSION_MAX_AGE_SECONDS`: default session lifetime in seconds.  Backends may set a longer or shorter lifetime per-session via `Mu-Session-Valid-Until`.
+* `SESSION_MAX_AGE_STRATEGY`: strategy applied when a session exceeds its max age.  Accepted values: `clear_allowed_groups`, `clear_session`.
+* `SESSION_MAX_REFRESH_AGE_SECONDS`: maximum idle time in seconds before the configured strategy fires.
+* `SESSION_MAX_REFRESH_AGE_STRATEGY`: strategy applied when a session exceeds its idle timeout.  Accepted values: `clear_allowed_groups`, `clear_session`.
 * `IDLE_TIMEOUT`: the amount of time (in ms) that idle requests will be kept open (see [`idle_timeout` in the Cowboy docs](https://ninenines.eu/docs/en/cowboy/2.5/manual/cowboy_http/))
 * `OVERRIDE_VARY_HEADER`: EXPERIMENTAL When set, the [`Vary` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary) is overriden with the specified variable, regardless of what the backend provides.
 
@@ -241,3 +267,19 @@ Any other value causes the identifier to return an error.  The header is not for
 #### Passes `Mu-Auth-Token` to client
 
 Present in the response when the backend has requested JWT delivery mode.  Contains a signed JWT encoding the session state.  Clients should send this value as `Authorization: Bearer <token>` on subsequent requests.
+
+#### Received `Mu-Session-Valid-Until` from backend
+
+A unix timestamp (seconds) declaring how long the current session should remain valid.  Stored in the session and used to enforce max-age expiry.  Not forwarded to the client.
+
+#### Passes `Mu-Session-Expires-In` to client
+
+Seconds remaining until the session's max age expires.  Present in the response when a session expiry has been set.  May be negative if the session has already expired.
+
+#### Passes `Mu-Session-Refresh-Expires-In` to client
+
+Seconds remaining in the idle window before the session refresh strategy fires.  Present in the response when `SESSION_MAX_REFRESH_AGE_SECONDS` is configured.
+
+#### Passes `Mu-Previous-Session-Id` to backend
+
+Present in the request when a session was cleared by an expiry or revocation strategy.  Contains the URI of the previous session so the backend can associate the new session with the old one if needed.
