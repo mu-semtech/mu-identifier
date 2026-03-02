@@ -133,6 +133,10 @@ The second argument is the revocation strategy:
 * `:clear_allowed_groups`: clears the cached allowed groups so the backend recalculates access rights on the next request.
 * `:clear_session`: additionally issues a new session URI, starting a fresh session.
 
+An optional third argument sets how long the revocation entry persists in seconds.  When omitted, entries persist for 2x `DEFAULT_SESSION_MAX_AGE_SECONDS`.  If a backend has set a session lifetime longer than `DEFAULT_SESSION_MAX_AGE_SECONDS`, pass an explicit duration to ensure the revocation outlives the session:
+
+    > docker exec <identifier-container> /app/bin/mu_identifier eval 'SessionRevocation.revoke_mu_session_id("http://mu.semte.ch/sessions/...", :clear_session, 86400)'
+
 Note that revocations are stored in memory and do not survive a restart of the identifier container.
 
 ### Log the allowed groups in a running stack
