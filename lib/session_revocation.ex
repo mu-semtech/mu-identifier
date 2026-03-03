@@ -25,6 +25,14 @@ defmodule SessionRevocation do
     GenServer.call(__MODULE__, {:revoke_mu_auth_allowed_groups_string, allowed_groups_string, strategy, persist_seconds})
   end
 
+  @doc "Returns a map with all currently tracked revocations, keyed by `:session_ids` and `:allowed_groups`."
+  def list_revocations do
+    %{
+      session_ids: :ets.tab2list(@session_id_string_table),
+      allowed_groups: :ets.tab2list(@allowed_groups_string_table)
+    }
+  end
+
   @doc "Returns nil when the session URI has no pending revocation, or the strategy atom when it does."
   def mu_session_id_revoked?(mu_session_id) do
     case :ets.lookup(@session_id_string_table, mu_session_id) do

@@ -4,7 +4,7 @@
     {
       "documentation": {
         "command": "revoke-session",
-        "description": "Revoke a session URI, clearing allowed groups or starting a fresh session",
+        "description": "Revoke a session URI.  Strategy is one of clear_allowed_groups (default) or clear_session.",
         "arguments": ["session-uri", "strategy", "persist-seconds"]
       },
       "environment": {
@@ -15,14 +15,26 @@
     },
     {
       "documentation": {
-        "command": "revoke-allowed-groups",
-        "description": "Revoke all sessions holding a specific allowed-groups string",
+        "command": "revoke-allowed-groups-string",
+        "description": "Revoke all sessions holding a specific allowed-groups string.  Strategy is one of clear_allowed_groups (default) or clear_session.",
         "arguments": ["allowed-groups-string", "strategy", "persist-seconds"]
       },
       "environment": {
         "interactive": false,
         "join_networks": true,
-        "script": "revoke-allowed-groups/run.sh"
+        "script": "revoke-allowed-groups-string/run.sh"
+      }
+    }
+    ,{
+      "documentation": {
+        "command": "list-revocations",
+        "description": "List all session IDs and allowed-groups strings currently tracked for revocation",
+        "arguments": []
+      },
+      "environment": {
+        "interactive": false,
+        "join_networks": true,
+        "script": "list-revocations/run.sh"
       }
     }
   ]

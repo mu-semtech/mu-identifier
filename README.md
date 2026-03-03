@@ -126,7 +126,7 @@ Revoke a session URI:
 
 Revoke all sessions holding a specific allowed-groups string:
 
-    > mu script identifier revoke-allowed-groups '[{"name":"public","variables":[]}]' clear_allowed_groups
+    > mu script identifier revoke-allowed-groups-string '[{"name":"public","variables":[]}]' clear_allowed_groups
 
 The second argument is the revocation strategy:
 
