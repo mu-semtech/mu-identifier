@@ -29,6 +29,15 @@ defmodule SessionExpiration do
     {[{"mu-previous-session-id", old_session_id} | headers], frontend_connection}
   end
 
+  def handle(:unauthorized, frontend_connection, headers) do
+    frontend_connection =
+      frontend_connection
+      |> Plug.Conn.send_resp(401, "")
+      |> Plug.Conn.halt()
+
+    {headers, frontend_connection}
+  end
+
   def handle(nil, frontend_connection, headers) do
     {headers, frontend_connection}
   end

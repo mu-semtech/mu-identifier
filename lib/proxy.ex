@@ -24,6 +24,7 @@ defmodule Proxy do
     Manipulators.ClearMuInternalKeys,
     Manipulators.ReadSessionFromCookie,
     Manipulators.ReadSessionFromJwt,
+    Manipulators.ClientEnforcedSessionClearing,
     Manipulators.EnsureUserSession,
     Manipulators.EnforceSessionRevocation,
     Manipulators.EnforceSessionMaxAge,
