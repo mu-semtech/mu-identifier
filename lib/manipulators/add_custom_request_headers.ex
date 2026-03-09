@@ -12,12 +12,12 @@ defmodule Manipulators.AddCustomRequestHeaders do
       |> List.keydelete("mu-auth-allowed-groups", 0)
 
     new_headers = [
-      {"mu-session-id", Plug.Conn.get_session(frontend_connection, :proxy_user_id)},
+      {"mu-session-id", frontend_connection.assigns[:mu_session_id]},
       {"mu-call-id", Integer.to_string(Enum.random(0..1_000_000_000_000))}
       | clean_headers
     ]
 
-    authorization_groups = Plug.Conn.get_session(frontend_connection, :mu_auth_allowed_groups)
+    authorization_groups = frontend_connection.assigns[:mu_auth_allowed_groups]
 
     default_allowed_groups =
       Application.get_env(:mu_identifier, :default_mu_auth_allowed_groups_header)

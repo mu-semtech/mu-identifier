@@ -18,7 +18,7 @@ defmodule Manipulators.EnforceSessionMaxRefreshAge do
     {headers, frontend_connection} =
       if max_refresh_age_seconds && session_last_activity_at &&
            now - session_last_activity_at > max_refresh_age_seconds do
-        SessionStrategy.apply(
+        SessionExpiration.handle(
           Application.get_env(:mu_identifier, :session_max_refresh_age_strategy),
           frontend_connection,
           headers

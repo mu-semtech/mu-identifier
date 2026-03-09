@@ -15,7 +15,7 @@ defmodule Manipulators.EnforceSessionMaxAge do
 
     {headers, frontend_connection} =
       if session_valid_until && session_valid_until < now do
-        SessionStrategy.apply(
+        SessionExpiration.handle(
           Application.get_env(:mu_identifier, :session_max_age_strategy),
           frontend_connection,
           headers

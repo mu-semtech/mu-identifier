@@ -21,10 +21,7 @@ defmodule Manipulators.UpdateSessionMaxRefreshAge do
       max_refresh ->
         now = System.os_time(:second)
 
-        frontend_connection =
-          frontend_connection
-          |> Plug.Conn.put_session(:session_last_activity_at, now)
-          |> Plug.Conn.assign(:session_last_activity_at, now)
+        frontend_connection = Plug.Conn.assign(frontend_connection, :session_last_activity_at, now)
 
         headers = [{"mu-session-refresh-expires-in", Integer.to_string(max_refresh)} | headers]
 

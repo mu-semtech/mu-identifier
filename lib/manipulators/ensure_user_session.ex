@@ -4,9 +4,9 @@ defmodule Manipulators.EnsureUserSession do
   @impl true
   def headers(headers, {frontend_connection, backend_connection}) do
     frontend_connection =
-      if Plug.Conn.get_session(frontend_connection, :proxy_user_id) do
+      if frontend_connection.assigns[:mu_session_id] do
         if( Application.get_env(:mu_identifier, :log_session) ) do
-          IO.inspect( Plug.Conn.get_session(frontend_connection, :proxy_user_id),
+          IO.inspect( frontend_connection.assigns[:mu_session_id],
             label: "Keeping user id" )
         end
         frontend_connection
@@ -17,17 +17,16 @@ defmodule Manipulators.EnsureUserSession do
           IO.inspect( new_user_id, label: "Created new user id" )
         end
 
-        Plug.Conn.put_session(
-          frontend_connection,
-          :proxy_user_id,
-          new_user_id
-        )
+        Plug.Conn.assign(frontend_connection, :mu_session_id, new_user_id)
       end
 
     previous_session_state = %{
-      user_id: Plug.Conn.get_session(frontend_connection, :proxy_user_id),
-      allowed_groups: Plug.Conn.get_session(frontend_connection, :mu_auth_allowed_groups),
-      valid_until: frontend_connection.assigns[:session_valid_until]
+      session_delivery_mode: frontend_connection.assigns[:session_delivery_mode],
+      mu_session_id: frontend_connection.assigns[:mu_session_id],
+      mu_auth_allowed_groups: frontend_connection.assigns[:mu_auth_allowed_groups],
+      groups_issued_at: frontend_connection.assigns[:groups_issued_at],
+      session_valid_until: frontend_connection.assigns[:session_valid_until],
+      session_last_activity_at: frontend_connection.assigns[:session_last_activity_at]
     }
 
     frontend_connection = Plug.Conn.assign(frontend_connection, :mu_previous_session_state, previous_session_state)

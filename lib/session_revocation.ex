@@ -4,7 +4,7 @@ defmodule SessionRevocation do
 
   Both mu-auth-allowed-groups and mu-session-id are currently revoked based on their string value.
 
-  Revocation entries persist until their individual expiry, set at revocation time.  When no
+  Revocation entries persist until their individual expiration, set at revocation time.  When no
   explicit duration is supplied, entries persist for 2x DEFAULT_SESSION_MAX_AGE_SECONDS.  When
   DEFAULT_SESSION_MAX_AGE_SECONDS is not configured either, entries are never purged.
 

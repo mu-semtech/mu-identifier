@@ -139,13 +139,13 @@ An optional third argument sets how long the revocation entry persists in second
 
 Note that revocations are stored in memory and do not survive a restart of the identifier container.
 
-### Configure session expiry
+### Configure session expiration
 
-Sessions live forever by default.  The identifier supports two independent expiry policies: a maximum absolute age and an idle timeout.
+Sessions live forever by default.  The identifier supports two independent expiration policies: a maximum absolute age and an idle timeout.
 
 **Maximum session age**
 
-A backend service declares how long a session should remain valid by setting `Mu-Session-Valid-Until` (unix timestamp in seconds) in its response.  When `DEFAULT_SESSION_MAX_AGE_SECONDS` is set, the identifier applies that as a default for sessions without an explicit expiry.
+A backend service declares how long a session should remain valid by setting `Mu-Session-Valid-Until` (unix timestamp in seconds) in its response.  When `DEFAULT_SESSION_MAX_AGE_SECONDS` is set, the identifier applies that as a default for sessions without an explicit expiration.
 
 When a session exceeds its max age, `SESSION_MAX_AGE_STRATEGY` is applied:
 
@@ -158,9 +158,9 @@ When a session exceeds its max age, `SESSION_MAX_AGE_STRATEGY` is applied:
 
 Note that lowering `SESSION_MAX_REFRESH_AGE_SECONDS` tightens the idle window retroactively for existing sessions, since stored activity timestamps are compared against the current config value.
 
-**Client-side expiry information**
+**Client-side expiration information**
 
-The identifier adds `Mu-Session-Expires-In` and `Mu-Session-Refresh-Expires-In` (in seconds) to responses so clients can track expiry without depending on server clock synchronisation.
+The identifier adds `Mu-Session-Expires-In` and `Mu-Session-Refresh-Expires-In` (in seconds) to responses so clients can track expiration without depending on server clock synchronisation.
 
 ### Log the allowed groups in a running stack
 
@@ -270,11 +270,11 @@ Present in the response when the backend has requested JWT delivery mode.  Conta
 
 #### Received `Mu-Session-Valid-Until` from backend
 
-A unix timestamp (seconds) declaring how long the current session should remain valid.  Stored in the session and used to enforce max-age expiry.  Not forwarded to the client.
+A unix timestamp (seconds) declaring how long the current session should remain valid.  Stored in the session and used to enforce max-age expiration.  Not forwarded to the client.
 
 #### Passes `Mu-Session-Expires-In` to client
 
-Seconds remaining until the session's max age expires.  Present in the response when a session expiry has been set.  May be negative if the session has already expired.
+Seconds remaining until the session's max age expires.  Present in the response when a session expiration has been set.  May be negative if the session has already expired.
 
 #### Passes `Mu-Session-Refresh-Expires-In` to client
 
@@ -282,4 +282,4 @@ Seconds remaining in the idle window before the session refresh strategy fires. 
 
 #### Passes `Mu-Previous-Session-Id` to backend
 
-Present in the request when a session was cleared by an expiry or revocation strategy.  Contains the URI of the previous session so the backend can associate the new session with the old one if needed.
+Present in the request when a session was cleared by an expiration or revocation strategy.  Contains the URI of the previous session so the backend can associate the new session with the old one if needed.

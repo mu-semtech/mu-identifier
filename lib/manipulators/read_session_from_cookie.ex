@@ -10,6 +10,9 @@ defmodule Manipulators.ReadSessionFromCookie do
     frontend_connection =
       frontend_connection
       |> Plug.Conn.assign(:session_delivery_mode, :cookie)
+      |> Plug.Conn.assign(:mu_session_id, Plug.Conn.get_session(frontend_connection, :proxy_user_id))
+      |> Plug.Conn.assign(:mu_auth_allowed_groups, Plug.Conn.get_session(frontend_connection, :mu_auth_allowed_groups))
+      |> Plug.Conn.assign(:groups_issued_at, Plug.Conn.get_session(frontend_connection, :groups_issued_at))
       |> Plug.Conn.assign(:session_valid_until, Plug.Conn.get_session(frontend_connection, :session_valid_until))
 
     frontend_connection =

@@ -26,10 +26,7 @@ defmodule Manipulators.UpdateSessionMaxAge do
             end
       end
 
-    frontend_connection =
-      frontend_connection
-      |> Plug.Conn.put_session(:session_valid_until, valid_until)
-      |> Plug.Conn.assign(:session_valid_until, valid_until)
+    frontend_connection = Plug.Conn.assign(frontend_connection, :session_valid_until, valid_until)
 
     headers =
       case valid_until do

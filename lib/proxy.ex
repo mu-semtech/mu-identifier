@@ -36,10 +36,11 @@ defmodule Proxy do
     Manipulators.UpdateSessionMaxRefreshAge,
     Manipulators.DetermineSessionDeliveryMode,
     Manipulators.ClearMuInternalKeys,
-    Manipulators.UpgradeSessionCookieToJwtToken,
     Manipulators.PutCacheClearHeaders,
     Manipulators.AddCorsHeader,
-    Manipulators.OverrideVaryHeader
+    Manipulators.OverrideVaryHeader,
+    Manipulators.WriteSessionCookie,
+    Manipulators.WriteJwtToken
   ]
   @manipulators ProxyManipulatorSettings.make_settings(
                   @request_manipulators,
