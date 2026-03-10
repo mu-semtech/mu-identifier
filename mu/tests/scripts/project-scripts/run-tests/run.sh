@@ -16,9 +16,6 @@ APP=/mu-project
 FAIL=0
 GROUPS='[{"name":"admin","variables":[]}]'
 
-mkdir -p $APP/.tmp
-printf '%s' "$GROUPS" > $APP/.tmp/groups.txt
-
 # Helper: wait for a URL to return 200.
 # The project-scripts container is on the compose default network (same docker-compose.yml),
 # so wget can reach dispatcher/identifier directly without going through `host`.
@@ -34,11 +31,10 @@ wait_for() {
   return 1
 }
 
-# Helper: capture cookie + session ID from a fresh session into .tmp/output.txt
+# Helper: capture cookie + session ID from a fresh session; prints cookie on line 1, session ID on line 2
 capture_session() {
   host docker compose run --rm --no-deps \
-    -e GROUPS_FILE=/tests/.tmp/groups.txt \
-    -e OUTPUT_FILE=/tests/.tmp/output.txt \
+    -e GROUPS="$GROUPS" \
     tests node /tests/capture-session.js
 }
 
@@ -87,18 +83,18 @@ printf "\n=== 09-session-revocation.js ===\n"
 host docker compose up -d identifier --force-recreate
 wait_for http://identifier/
 
-capture_session
-CLEAR_GROUPS_COOKIE=$(sed -n '1p' $APP/.tmp/output.txt)
-CLEAR_GROUPS_SESSION_ID=$(sed -n '2p' $APP/.tmp/output.txt)
+OUTPUT=$(capture_session)
+CLEAR_GROUPS_COOKIE=$(printf '%s\n' "$OUTPUT" | sed -n '1p')
+CLEAR_GROUPS_SESSION_ID=$(printf '%s\n' "$OUTPUT" | sed -n '2p')
 revoke_session "$CLEAR_GROUPS_SESSION_ID" clear_allowed_groups
 
-capture_session
-CLEAR_SESSION_COOKIE=$(sed -n '1p' $APP/.tmp/output.txt)
-CLEAR_SESSION_ID=$(sed -n '2p' $APP/.tmp/output.txt)
+OUTPUT=$(capture_session)
+CLEAR_SESSION_COOKIE=$(printf '%s\n' "$OUTPUT" | sed -n '1p')
+CLEAR_SESSION_ID=$(printf '%s\n' "$OUTPUT" | sed -n '2p')
 revoke_session "$CLEAR_SESSION_ID" clear_session
 
-capture_session
-REVOKED_GROUPS_COOKIE=$(sed -n '1p' $APP/.tmp/output.txt)
+OUTPUT=$(capture_session)
+REVOKED_GROUPS_COOKIE=$(printf '%s\n' "$OUTPUT" | sed -n '1p')
 revoke_groups_string clear_allowed_groups
 
 host docker compose run --rm \
@@ -109,6 +105,5 @@ host docker compose run --rm \
   -e REVOKED_GROUPS_COOKIE="$REVOKED_GROUPS_COOKIE" \
   tests || FAIL=1
 
-rm -rf $APP/.tmp
 host docker compose down
 exit $FAIL

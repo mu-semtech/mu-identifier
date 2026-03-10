@@ -5,20 +5,21 @@ services:
       - dispatcher
   dispatcher:
     build:
-      context: .
+      context: infrastructure
       dockerfile: Dockerfile.dispatcher
     environment:
       NODE_ENV: production
   tests:
-    image: node:lts-alpine
+    build:
+      context: infrastructure
+      dockerfile: Dockerfile.tests
     working_dir: /tests
     volumes:
-      - ./:/tests/
-      - tests_node_modules:/tests/node_modules
+      - ./cases:/tests/cases
     depends_on:
       - identifier
     command: >
-      sh -c "npm install >/dev/null 2>&1 && npx mocha --file setup.js
+      sh -c "npx mocha --file setup.js
       $${TEST_SPEC:-cases/*.js} --timeout 15000 --exit"
 
   project-scripts:
@@ -26,6 +27,3 @@ services:
     volumes:
       - ./scripts/project-scripts/:/app/scripts/
     restart: "no"
-
-volumes:
-  tests_node_modules:

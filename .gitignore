@@ -4,3 +4,5 @@ erl_crash.dump
 *.ez
 *~
 .elixir_ls
+/mu/tests/.tmp
+/mu/tests/infrastructure/node_modules
