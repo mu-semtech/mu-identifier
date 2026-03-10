@@ -15,7 +15,7 @@ defmodule Manipulators.EnforceSessionRevocation do
 
     {headers, frontend_connection} =
       case allowed_groups_string && SessionRevocation.allowed_groups_string_revoked?(allowed_groups_string) do
-        {revoked_at, strategy} when revoked_at > groups_issued_at ->
+        {revoked_at, strategy} when revoked_at >= groups_issued_at ->
           SessionExpiration.handle(strategy, frontend_connection, headers)
 
         _ ->
