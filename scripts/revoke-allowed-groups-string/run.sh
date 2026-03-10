@@ -4,7 +4,7 @@ STRATEGY=${2:-clear_allowed_groups}
 DURATION=$3
 
 ESCAPED_GROUPS=$(printf '%s' "$ALLOWED_GROUPS" | sed 's/"/\\"/g')
-IDENTIFIER_IP=$(nslookup identifier | grep -oP '\d+\.\d+\.\d+\.\d+' | tail -1)
+IDENTIFIER_IP=$(getent hosts identifier | awk '{print $1}')
 
 if [ -n "$DURATION" ]; then
   CALL="SessionRevocation.revoke_mu_auth_allowed_groups_string(\"$ESCAPED_GROUPS\", :$STRATEGY, $DURATION)"

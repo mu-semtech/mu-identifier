@@ -1,0 +1,31 @@
+services:
+  identifier:
+    build: ../../
+    depends_on:
+      - dispatcher
+  dispatcher:
+    build:
+      context: .
+      dockerfile: Dockerfile.dispatcher
+    environment:
+      NODE_ENV: production
+  tests:
+    image: node:lts-alpine
+    working_dir: /tests
+    volumes:
+      - ./:/tests/
+      - tests_node_modules:/tests/node_modules
+    depends_on:
+      - identifier
+    command: >
+      sh -c "npm install >/dev/null 2>&1 && npx mocha --file setup.js
+      $${TEST_SPEC:-cases/*.js} --timeout 15000 --exit"
+
+  project-scripts:
+    image: semtech/mu-scripts:1.0.0
+    volumes:
+      - ./scripts/project-scripts/:/app/scripts/
+    restart: "no"
+
+volumes:
+  tests_node_modules:

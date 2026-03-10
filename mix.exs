@@ -32,6 +32,7 @@ defmodule Proxy.Mixfile do
     [{:plug_mint_proxy, git: "https://github.com/madnificent/plug-mint-proxy.git", branch: "feature/support-halted-connections"},
      {:uuid, "~> 1.1"},
      {:cowboy, "~> 2.10.0"},
+     {:plug_cowboy, "~> 2.4"},
      {:plug, "~> 1.10.4", override: true},
      {:replug, "~> 0.1.0"},
      {:secure_random, "~> 0.5"},

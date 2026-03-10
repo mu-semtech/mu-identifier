@@ -1,5 +1,5 @@
 #!/bin/sh
-IDENTIFIER_IP=$(nslookup identifier | grep -oP '\d+\.\d+\.\d+\.\d+' | tail -1)
+IDENTIFIER_IP=$(getent hosts identifier | awk '{print $1}')
 
 elixir --name "rpc@$(hostname -i)" --cookie mu-identifier \
   --rpc-eval "mu_identifier@$IDENTIFIER_IP" \

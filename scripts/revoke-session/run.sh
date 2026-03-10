@@ -3,7 +3,7 @@ SESSION_URI=$1
 STRATEGY=${2:-clear_allowed_groups}
 DURATION=$3
 
-IDENTIFIER_IP=$(nslookup identifier | grep -oP '\d+\.\d+\.\d+\.\d+' | tail -1)
+IDENTIFIER_IP=$(getent hosts identifier | awk '{print $1}')
 
 if [ -n "$DURATION" ]; then
   CALL="SessionRevocation.revoke_mu_session_id(\"$SESSION_URI\", :$STRATEGY, $DURATION)"

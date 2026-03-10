@@ -1,0 +1,4 @@
+services:
+  identifier:
+    environment:
+      SESSION_MAX_AGE_STRATEGY: "clear_session"

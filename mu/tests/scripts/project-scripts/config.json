@@ -1,0 +1,30 @@
+{
+  "version": "0.3",
+  "scripts": [
+    {
+      "documentation": {
+        "command": "run-tests",
+        "description": "Build mu-identifier, run the full integration test suite, and tear down.",
+        "arguments": []
+      },
+      "environment": {
+        "interactive": true,
+        "join_networks": true,
+        "script": "run-tests/run.sh"
+      },
+      "mounts": {
+        "app": "/mu-project",
+        "host": "/usr/bin/host"
+      },
+      "permissions": {
+        "host": [
+          {
+            "name": "docker-compose-tests",
+            "comment": "Run docker compose commands to build and run the integration test suite",
+            "command": "^docker compose.*$"
+          }
+        ]
+      }
+    }
+  ]
+}

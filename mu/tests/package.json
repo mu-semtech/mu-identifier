@@ -1,0 +1,9 @@
+{
+  "type": "module",
+  "scripts": {
+    "test": "mocha --file setup.js 'cases/*.js' --timeout 15000 --exit"
+  },
+  "dependencies": {
+    "mocha": "^10"
+  }
+}

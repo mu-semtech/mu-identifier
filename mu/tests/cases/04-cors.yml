@@ -1,0 +1,4 @@
+services:
+  identifier:
+    environment:
+      DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN_HEADER: "*"
