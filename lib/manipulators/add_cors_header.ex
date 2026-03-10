@@ -8,7 +8,7 @@ defmodule Manipulators.AddCorsHeader do
 
     headers =
       if default_cors_header do
-        put_new_key(headers, "Access-Control-Allow-Origin", default_cors_header)
+        put_new_key(headers, "access-control-allow-origin", default_cors_header)
       else
         headers
       end
