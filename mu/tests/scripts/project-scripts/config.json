@@ -19,9 +19,34 @@
       "permissions": {
         "host": [
           {
-            "name": "docker-compose-tests",
-            "comment": "Run docker compose commands to build and run the integration test suite",
-            "command": "^docker compose.*$"
+            "name": "build",
+            "comment": "Build test images",
+            "command": "^docker compose build$"
+          },
+          {
+            "name": "start-services",
+            "comment": "Start dispatcher or identifier with optional compose overrides",
+            "command": "^docker compose( -f \\S+)* up -d (dispatcher|identifier)( --force-recreate)?$"
+          },
+          {
+            "name": "run-test-specs",
+            "comment": "Run mocha test specs with optional compose overrides and env vars",
+            "command": "^docker compose( -f \\S+)* run --rm( -e \\S+)* tests$"
+          },
+          {
+            "name": "capture-session",
+            "comment": "Establish a session and capture its cookie for revocation tests",
+            "command": "^docker compose run --rm --no-deps -e GROUPS=\\S+ tests node /tests/capture-session\\.js$"
+          },
+          {
+            "name": "revocation-scripts",
+            "comment": "Invoke session revocation scripts on the identifier",
+            "command": "^docker compose run --rm --entrypoint /app/scripts/(revoke-session|revoke-allowed-groups-string)/run\\.sh identifier( \\S+)*$"
+          },
+          {
+            "name": "teardown",
+            "comment": "Tear down the test stack",
+            "command": "^docker compose down$"
           }
         ]
       }
