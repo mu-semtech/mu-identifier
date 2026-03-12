@@ -1,23 +1,30 @@
-import { before } from 'mocha';
+import { before, afterEach } from 'mocha';
+import { createConnection } from 'net';
+import { ready, backend } from './mock-backend.js';
+
+await ready;
 
 const MAX_WAIT_MS = 30_000;
 
-async function waitFor(url, label) {
-  const deadline = Date.now() + MAX_WAIT_MS;
-  while (Date.now() < deadline) {
-    try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(1000) });
-      if (res.ok) return;
-    } catch {
-      // not yet up
-    }
-    await new Promise(r => setTimeout(r, 500));
-  }
-  throw new Error(`Timed out waiting for ${label} to start`);
+function identifierAcceptsConnections() {
+  return new Promise((resolve) => {
+    const socket = createConnection({ host: 'identifier', port: 80 });
+    socket.on('connect', () => { socket.destroy(); resolve(true); });
+    socket.on('error', () => resolve(false));
+    socket.setTimeout(1000, () => { socket.destroy(); resolve(false); });
+  });
 }
 
-before(async function waitForServices() {
-  this.timeout(MAX_WAIT_MS * 2 + 5_000);
-  await waitFor('http://dispatcher/', 'dispatcher');
-  await waitFor('http://identifier/', 'identifier');
+before(async function waitForIdentifier() {
+  this.timeout(MAX_WAIT_MS + 5_000);
+  const deadline = Date.now() + MAX_WAIT_MS;
+  while (Date.now() < deadline) {
+    if (await identifierAcceptsConnections()) return;
+    await new Promise(r => setTimeout(r, 500));
+  }
+  throw new Error('Timed out waiting for identifier to start');
+});
+
+afterEach(() => {
+  backend.reset();
 });

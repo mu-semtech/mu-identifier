@@ -1,14 +1,6 @@
 services:
   identifier:
     build: ../../
-    depends_on:
-      - dispatcher
-  dispatcher:
-    build:
-      context: infrastructure
-      dockerfile: Dockerfile.dispatcher
-    environment:
-      NODE_ENV: production
   tests:
     build:
       context: infrastructure
@@ -16,8 +8,10 @@ services:
     working_dir: /tests
     volumes:
       - ./cases:/tests/cases
-    depends_on:
-      - identifier
+    networks:
+      default:
+        aliases:
+          - dispatcher
     command: >
       sh -c "npx mocha --file setup.js
       $${TEST_SPEC:-cases/*.js} --timeout 15000 --exit"

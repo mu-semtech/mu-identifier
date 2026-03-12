@@ -16,24 +16,9 @@ APP=/mu-project
 FAIL=0
 GROUPS='[{"name":"admin","variables":[]}]'
 
-# Helper: wait for a URL to return 200.
-# The project-scripts container is on the compose default network (same docker-compose.yml),
-# so wget can reach dispatcher/identifier directly without going through `host`.
-wait_for() {
-  URL="$1"
-  TRIES=0
-  while [ $TRIES -lt 60 ]; do
-    wget -qO /dev/null "$URL" 2>/dev/null && return 0
-    TRIES=$((TRIES + 1))
-    sleep 1
-  done
-  printf "Timed out waiting for %s\n" "$URL" >&2
-  return 1
-}
-
 # Helper: capture cookie + session ID from a fresh session; prints cookie on line 1, session ID on line 2
 capture_session() {
-  host docker compose run --rm --no-deps \
+  host docker compose run --rm --use-aliases --no-deps \
     -e GROUPS="$GROUPS" \
     tests node /tests/capture-session.js
 }
@@ -56,8 +41,6 @@ revoke_groups_string() {
 }
 
 host docker compose build
-host docker compose up -d dispatcher
-wait_for http://dispatcher/
 
 for SPEC_JS in $APP/cases/0[1-8]-*.js; do
   SPEC="$(basename "$SPEC_JS")"
@@ -67,13 +50,11 @@ for SPEC_JS in $APP/cases/0[1-8]-*.js; do
 
   if [ -f "$APP/$OVERRIDE" ]; then
     host docker compose -f docker-compose.yml -f "$OVERRIDE" up -d identifier --force-recreate
-    wait_for http://identifier/
-    host docker compose -f docker-compose.yml -f "$OVERRIDE" run --rm \
+    host docker compose -f docker-compose.yml -f "$OVERRIDE" run --rm --use-aliases \
       -e TEST_SPEC="cases/$SPEC" tests || FAIL=1
   else
     host docker compose up -d identifier --force-recreate
-    wait_for http://identifier/
-    host docker compose run --rm \
+    host docker compose run --rm --use-aliases \
       -e TEST_SPEC="cases/$SPEC" tests || FAIL=1
   fi
 done
@@ -81,7 +62,6 @@ done
 # Revocation tests: set up session state, revoke, then assert
 printf "\n=== 09-session-revocation.js ===\n"
 host docker compose up -d identifier --force-recreate
-wait_for http://identifier/
 
 OUTPUT=$(capture_session)
 CLEAR_GROUPS_COOKIE=$(printf '%s\n' "$OUTPUT" | sed -n '1p')
@@ -97,7 +77,7 @@ OUTPUT=$(capture_session)
 REVOKED_GROUPS_COOKIE=$(printf '%s\n' "$OUTPUT" | sed -n '1p')
 revoke_groups_string clear_allowed_groups
 
-host docker compose run --rm \
+host docker compose run --rm --use-aliases \
   -e TEST_SPEC=cases/09-session-revocation.js \
   -e CLEAR_GROUPS_COOKIE="$CLEAR_GROUPS_COOKIE" \
   -e CLEAR_SESSION_COOKIE="$CLEAR_SESSION_COOKIE" \

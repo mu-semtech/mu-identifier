@@ -24,19 +24,19 @@
             "command": "^docker compose build$"
           },
           {
-            "name": "start-services",
-            "comment": "Start dispatcher or identifier with optional compose overrides",
-            "command": "^docker compose( -f \\S+)* up -d (dispatcher|identifier)( --force-recreate)?$"
+            "name": "start-identifier",
+            "comment": "Start identifier with optional compose overrides",
+            "command": "^docker compose( -f \\S+)* up -d identifier( --force-recreate)?$"
           },
           {
             "name": "run-test-specs",
             "comment": "Run mocha test specs with optional compose overrides and env vars",
-            "command": "^docker compose( -f \\S+)* run --rm( -e \\S+)* tests$"
+            "command": "^docker compose( -f \\S+)* run --rm --use-aliases( -e \\S+)* tests$"
           },
           {
             "name": "capture-session",
             "comment": "Establish a session and capture its cookie for revocation tests",
-            "command": "^docker compose run --rm --no-deps -e GROUPS=\\S+ tests node /tests/capture-session\\.js$"
+            "command": "^docker compose run --rm --use-aliases --no-deps -e GROUPS=\\S+ tests node /tests/capture-session\\.js$"
           },
           {
             "name": "revocation-scripts",
