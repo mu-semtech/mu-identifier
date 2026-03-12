@@ -14,6 +14,7 @@ ln -sf /usr/bin/env /bin/env 2>/dev/null || true
 APP=/mu-project
 FAIL=0
 GROUPS='[{"name":"admin","variables":[]}]'
+SPEC_ARG="${1:-}"  # optional: run a single spec, e.g. "04-cors" or "04-cors.js"
 
 # Write cases/XX.env to .test-identifier-env so identifier picks it up via env_file.
 # Always creates the file (empty if no per-spec override exists).
@@ -29,7 +30,7 @@ write_test_env() {
 capture_session() {
   host docker compose run --rm --use-aliases --no-deps \
     -e GROUPS="$GROUPS" \
-    tests node /tests/capture-session.js
+    mocha node /tests/capture-session.js
 }
 
 # Run an identifier script via the first available mu-cli command (works, wo, or mu)
@@ -52,57 +53,71 @@ revoke_groups_string() {
   mu_identifier_script revoke-allowed-groups-string "$GROUPS" "$STRATEGY"
 }
 
+run_spec_09() {
+  host docker compose up -d identifier --force-recreate
+
+  OUTPUT=$(capture_session)
+  CLEAR_GROUPS_COOKIE=$(printf '%s\n' "$OUTPUT" | sed -n '1p')
+  CLEAR_GROUPS_SESSION_ID=$(printf '%s\n' "$OUTPUT" | sed -n '2p')
+  revoke_session "$CLEAR_GROUPS_SESSION_ID" clear_allowed_groups
+
+  OUTPUT=$(capture_session)
+  CLEAR_SESSION_COOKIE=$(printf '%s\n' "$OUTPUT" | sed -n '1p')
+  CLEAR_SESSION_ID=$(printf '%s\n' "$OUTPUT" | sed -n '2p')
+  revoke_session "$CLEAR_SESSION_ID" clear_session
+
+  OUTPUT=$(capture_session)
+  REVOKED_GROUPS_COOKIE=$(printf '%s\n' "$OUTPUT" | sed -n '1p')
+  revoke_groups_string clear_allowed_groups
+
+  host docker compose run --rm --use-aliases \
+    -e TEST_SPEC=cases/09-session-revocation.js \
+    -e CLEAR_GROUPS_COOKIE="$CLEAR_GROUPS_COOKIE" \
+    -e CLEAR_SESSION_COOKIE="$CLEAR_SESSION_COOKIE" \
+    -e CLEAR_SESSION_ID="$CLEAR_SESSION_ID" \
+    -e REVOKED_GROUPS_COOKIE="$REVOKED_GROUPS_COOKIE" \
+    mocha || FAIL=1
+}
+
 host docker compose build
 
-for SPEC_JS in $APP/cases/0[1-8]-*.js; do
-  SPEC="$(basename "$SPEC_JS")"
+if [ -n "$SPEC_ARG" ]; then
+  SPEC="${SPEC_ARG%.js}"
+  printf "\n=== %s.js ===\n" "$SPEC"
+  case "$SPEC" in
+    09-*) run_spec_09 ;;
+    *)
+      write_test_env "$APP/cases/${SPEC}.env"
+      host docker compose up -d identifier --force-recreate
+      host docker compose run --rm --use-aliases \
+        -e TEST_SPEC="cases/${SPEC}.js" mocha || FAIL=1
+      : > "$APP/.test-identifier-env"
+      ;;
+  esac
+else
+  for SPEC_JS in $APP/cases/0[1-8]-*.js; do
+    SPEC="$(basename "$SPEC_JS")"
+    printf "\n=== %s ===\n" "$SPEC"
+    write_test_env "$APP/cases/${SPEC%.js}.env"
+    host docker compose up -d identifier --force-recreate
+    host docker compose run --rm --use-aliases \
+      -e TEST_SPEC="cases/$SPEC" mocha || FAIL=1
+  done
 
-  printf "\n=== %s ===\n" "$SPEC"
+  : > "$APP/.test-identifier-env"
 
-  write_test_env "$APP/cases/${SPEC%.js}.env"
-  host docker compose up -d identifier --force-recreate
-  host docker compose run --rm --use-aliases \
-    -e TEST_SPEC="cases/$SPEC" tests || FAIL=1
-done
+  printf "\n=== 09-session-revocation.js ===\n"
+  run_spec_09
 
-: > "$APP/.test-identifier-env"
-
-# Revocation tests: set up session state, revoke, then assert
-printf "\n=== 09-session-revocation.js ===\n"
-host docker compose up -d identifier --force-recreate
-
-OUTPUT=$(capture_session)
-CLEAR_GROUPS_COOKIE=$(printf '%s\n' "$OUTPUT" | sed -n '1p')
-CLEAR_GROUPS_SESSION_ID=$(printf '%s\n' "$OUTPUT" | sed -n '2p')
-revoke_session "$CLEAR_GROUPS_SESSION_ID" clear_allowed_groups
-
-OUTPUT=$(capture_session)
-CLEAR_SESSION_COOKIE=$(printf '%s\n' "$OUTPUT" | sed -n '1p')
-CLEAR_SESSION_ID=$(printf '%s\n' "$OUTPUT" | sed -n '2p')
-revoke_session "$CLEAR_SESSION_ID" clear_session
-
-OUTPUT=$(capture_session)
-REVOKED_GROUPS_COOKIE=$(printf '%s\n' "$OUTPUT" | sed -n '1p')
-revoke_groups_string clear_allowed_groups
-
-host docker compose run --rm --use-aliases \
-  -e TEST_SPEC=cases/09-session-revocation.js \
-  -e CLEAR_GROUPS_COOKIE="$CLEAR_GROUPS_COOKIE" \
-  -e CLEAR_SESSION_COOKIE="$CLEAR_SESSION_COOKIE" \
-  -e CLEAR_SESSION_ID="$CLEAR_SESSION_ID" \
-  -e REVOKED_GROUPS_COOKIE="$REVOKED_GROUPS_COOKIE" \
-  tests || FAIL=1
-
-for SPEC_JS in $APP/cases/1[0-9]-*.js; do
-  SPEC="$(basename "$SPEC_JS")"
-
-  printf "\n=== %s ===\n" "$SPEC"
-
-  write_test_env "$APP/cases/${SPEC%.js}.env"
-  host docker compose up -d identifier --force-recreate
-  host docker compose run --rm --use-aliases \
-    -e TEST_SPEC="cases/$SPEC" tests || FAIL=1
-done
+  for SPEC_JS in $APP/cases/1[0-9]-*.js; do
+    SPEC="$(basename "$SPEC_JS")"
+    printf "\n=== %s ===\n" "$SPEC"
+    write_test_env "$APP/cases/${SPEC%.js}.env"
+    host docker compose up -d identifier --force-recreate
+    host docker compose run --rm --use-aliases \
+      -e TEST_SPEC="cases/$SPEC" mocha || FAIL=1
+  done
+fi
 
 host docker compose down
 exit $FAIL

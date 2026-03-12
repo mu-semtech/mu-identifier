@@ -3,7 +3,7 @@ services:
     build: ../../
     env_file:
       - .test-identifier-env
-  tests:
+  mocha:
     build:
       context: infrastructure
       dockerfile: Dockerfile.tests
@@ -18,7 +18,7 @@ services:
       sh -c "npx mocha --file setup.js
       $${TEST_SPEC:-cases/*.js} --timeout 15000 --exit"
 
-  project-scripts:
+  tests:
     image: semtech/mu-scripts:1.0.0
     volumes:
       - ./scripts/project-scripts/:/app/scripts/

@@ -3,9 +3,9 @@
   "scripts": [
     {
       "documentation": {
-        "command": "run-tests",
-        "description": "Build mu-identifier, run the full integration test suite, and tear down.",
-        "arguments": []
+        "command": "run",
+        "description": "Build mu-identifier and run the integration test suite. Pass an optional spec name to run a single spec, e.g. 04-cors.",
+        "arguments": ["spec (optional)"]
       },
       "environment": {
         "interactive": true,
@@ -31,17 +31,17 @@
           {
             "name": "run-test-specs",
             "comment": "Run a mocha test spec by name",
-            "command": "^docker compose run --rm --use-aliases -e TEST_SPEC=cases/[0-9a-z-]+\\.js tests$"
+            "command": "^docker compose run --rm --use-aliases -e TEST_SPEC=cases/[0-9a-z-]+\\.js mocha$"
           },
           {
             "name": "run-revocation-spec",
             "comment": "Run the session revocation spec with captured session cookies",
-            "command": "^docker compose run --rm --use-aliases -e TEST_SPEC=cases/09-session-revocation\\.js( -e [A-Z_]+=[-a-zA-Z0-9._=:/]+)* tests$"
+            "command": "^docker compose run --rm --use-aliases -e TEST_SPEC=cases/09-session-revocation\\.js( -e [A-Z_]+=[-a-zA-Z0-9._=:/]+)* mocha$"
           },
           {
             "name": "capture-session",
             "comment": "Establish a session and capture its cookie for revocation tests",
-            "command": "^docker compose run --rm --use-aliases --no-deps -e GROUPS=\\S+ tests node /tests/capture-session\\.js$"
+            "command": "^docker compose run --rm --use-aliases --no-deps -e GROUPS=\\S+ mocha node /tests/capture-session\\.js$"
           },
           {
             "name": "revocation-scripts",
