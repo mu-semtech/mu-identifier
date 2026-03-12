@@ -1,4 +1,0 @@
-services:
-  identifier:
-    environment:
-      DEFAULT_MU_AUTH_ALLOWED_GROUPS_HEADER: '[{"name":"public","variables":[]}]'

@@ -1,6 +1,8 @@
 services:
   identifier:
     build: ../../
+    env_file:
+      - .test-identifier-env
   tests:
     build:
       context: infrastructure

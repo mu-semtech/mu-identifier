@@ -25,13 +25,18 @@
           },
           {
             "name": "start-identifier",
-            "comment": "Start identifier with optional compose overrides",
-            "command": "^docker compose( -f \\S+)* up -d identifier( --force-recreate)?$"
+            "comment": "Start or restart the identifier service",
+            "command": "^docker compose up -d identifier( --force-recreate)?$"
           },
           {
             "name": "run-test-specs",
-            "comment": "Run mocha test specs with optional compose overrides and env vars",
-            "command": "^docker compose( -f \\S+)* run --rm --use-aliases( -e \\S+)* tests$"
+            "comment": "Run a mocha test spec by name",
+            "command": "^docker compose run --rm --use-aliases -e TEST_SPEC=cases/[0-9a-z-]+\\.js tests$"
+          },
+          {
+            "name": "run-revocation-spec",
+            "comment": "Run the session revocation spec with captured session cookies",
+            "command": "^docker compose run --rm --use-aliases -e TEST_SPEC=cases/09-session-revocation\\.js( -e [A-Z_]+=[-a-zA-Z0-9._=:/]+)* tests$"
           },
           {
             "name": "capture-session",
@@ -40,8 +45,8 @@
           },
           {
             "name": "revocation-scripts",
-            "comment": "Invoke session revocation scripts on the identifier",
-            "command": "^docker compose run --rm --entrypoint /app/scripts/(revoke-session|revoke-allowed-groups-string)/run\\.sh identifier( \\S+)*$"
+            "comment": "Invoke session revocation scripts on the identifier via mu-cli",
+            "command": "^(works|wo|mu) script identifier (revoke-session|revoke-allowed-groups-string)( \\S+)*$"
           },
           {
             "name": "teardown",

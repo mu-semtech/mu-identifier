@@ -5,7 +5,6 @@ set -e
 # wo is invoked from mu/tests/, so:
 #   - /mu-project (mounts.app) = mu/tests/
 #   - host commands run from mu/tests/, so plain `docker compose` works
-#   - override files are at cases/*.yml relative to mu/tests/
 
 # The host command (docker-client-script.sh from mu-cli) needs bash and /bin/env.
 # semtech/mu-scripts:1.0.0 is Alpine-based: env lives at /usr/bin/env, bash is absent.
@@ -16,6 +15,16 @@ APP=/mu-project
 FAIL=0
 GROUPS='[{"name":"admin","variables":[]}]'
 
+# Write cases/XX.env to .test-identifier-env so identifier picks it up via env_file.
+# Always creates the file (empty if no per-spec override exists).
+write_test_env() {
+  if [ -f "$1" ]; then
+    cp "$1" "$APP/.test-identifier-env"
+  else
+    : > "$APP/.test-identifier-env"
+  fi
+}
+
 # Helper: capture cookie + session ID from a fresh session; prints cookie on line 1, session ID on line 2
 capture_session() {
   host docker compose run --rm --use-aliases --no-deps \
@@ -23,41 +32,40 @@ capture_session() {
     tests node /tests/capture-session.js
 }
 
-# Helper: revoke a session URI by running the revoke script in a fresh identifier container
+# Run an identifier script via the first available mu-cli command (works, wo, or mu)
+mu_identifier_script() {
+  host works script identifier "$@" 2>/dev/null \
+    || host wo script identifier "$@" 2>/dev/null \
+    || host mu script identifier "$@"
+}
+
+# Helper: revoke a session URI via the mu-cli script (same command end-users run)
 revoke_session() {
   SESSION_URI="$1"
   STRATEGY="${2:-clear_allowed_groups}"
-  host docker compose run --rm \
-    --entrypoint /app/scripts/revoke-session/run.sh \
-    identifier "$SESSION_URI" "$STRATEGY"
+  mu_identifier_script revoke-session "$SESSION_URI" "$STRATEGY"
 }
 
-# Helper: revoke all sessions holding the cached groups string
+# Helper: revoke all sessions holding the cached groups string via the mu-cli script
 revoke_groups_string() {
   STRATEGY="${1:-clear_allowed_groups}"
-  host docker compose run --rm \
-    --entrypoint /app/scripts/revoke-allowed-groups-string/run.sh \
-    identifier "$GROUPS" "$STRATEGY"
+  mu_identifier_script revoke-allowed-groups-string "$GROUPS" "$STRATEGY"
 }
 
 host docker compose build
 
 for SPEC_JS in $APP/cases/0[1-8]-*.js; do
   SPEC="$(basename "$SPEC_JS")"
-  OVERRIDE="cases/${SPEC%.js}.yml"
 
   printf "\n=== %s ===\n" "$SPEC"
 
-  if [ -f "$APP/$OVERRIDE" ]; then
-    host docker compose -f docker-compose.yml -f "$OVERRIDE" up -d identifier --force-recreate
-    host docker compose -f docker-compose.yml -f "$OVERRIDE" run --rm --use-aliases \
-      -e TEST_SPEC="cases/$SPEC" tests || FAIL=1
-  else
-    host docker compose up -d identifier --force-recreate
-    host docker compose run --rm --use-aliases \
-      -e TEST_SPEC="cases/$SPEC" tests || FAIL=1
-  fi
+  write_test_env "$APP/cases/${SPEC%.js}.env"
+  host docker compose up -d identifier --force-recreate
+  host docker compose run --rm --use-aliases \
+    -e TEST_SPEC="cases/$SPEC" tests || FAIL=1
 done
+
+: > "$APP/.test-identifier-env"
 
 # Revocation tests: set up session state, revoke, then assert
 printf "\n=== 09-session-revocation.js ===\n"
@@ -84,6 +92,17 @@ host docker compose run --rm --use-aliases \
   -e CLEAR_SESSION_ID="$CLEAR_SESSION_ID" \
   -e REVOKED_GROUPS_COOKIE="$REVOKED_GROUPS_COOKIE" \
   tests || FAIL=1
+
+for SPEC_JS in $APP/cases/1[0-9]-*.js; do
+  SPEC="$(basename "$SPEC_JS")"
+
+  printf "\n=== %s ===\n" "$SPEC"
+
+  write_test_env "$APP/cases/${SPEC%.js}.env"
+  host docker compose up -d identifier --force-recreate
+  host docker compose run --rm --use-aliases \
+    -e TEST_SPEC="cases/$SPEC" tests || FAIL=1
+done
 
 host docker compose down
 exit $FAIL
