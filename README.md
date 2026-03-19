@@ -159,6 +159,7 @@ All settings are configured through environment variables.
 ### Environment variables
 
 * `DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN_HEADER`: value of the `Access-Control-Allow-Origin` header if none is set by the backend.
+* `ALLOW_PRIVATE_NETWORK_ACCESS`: when set to "true", "yes", "1" or "on", adds the `Access-Control-Allow-Private-Network: true` header to all responses. Required when a browser on a public network accesses this service on a private network (see [Private Network Access](https://developer.chrome.com/blog/private-network-access-preflight/)).
 * `DEFAULT_MU_AUTH_ALLOWED_GROUPS_HEADER`: string used as default `Mu-Auth-Allowed-Groups` for sessions which don't contain these groups yet and which may use defaults (eg: `"[{\"variables\":[],\"name\":\"public\"}]"`).
 * `MU_SECRET_KEY_BASE`: base string of base string of at least 64 bytes used to generate secret keys, set this on production systems to avoid overlap.
 * `MU_ENCRYPTION_SALT`: a salt used with `MU_SECRET_KEY_BASE` to generate a key for encrypting/decrypting a cookie, set this on production systems so sessions survive restarts of the identifier.

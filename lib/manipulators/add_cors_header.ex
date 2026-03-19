@@ -13,6 +13,13 @@ defmodule Manipulators.AddCorsHeader do
         headers
       end
 
+    headers =
+      if Application.get_env(:mu_identifier, :allow_private_network_access) do
+        put_new_key(headers, "Access-Control-Allow-Private-Network", "true")
+      else
+        headers
+      end
+
     { headers, connection }
   end
 
