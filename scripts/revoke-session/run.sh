@@ -6,9 +6,9 @@ DURATION=$3
 IDENTIFIER_IP=$(getent hosts identifier | awk '{print $1}')
 
 if [ -n "$DURATION" ]; then
-  CALL="SessionRevocation.revoke_mu_session_id(\"$SESSION_URI\", :$STRATEGY, $DURATION)"
+  CALL="RevocationStore.revoke_mu_session_id(\"$SESSION_URI\", :$STRATEGY, $DURATION)"
 else
-  CALL="SessionRevocation.revoke_mu_session_id(\"$SESSION_URI\", :$STRATEGY)"
+  CALL="RevocationStore.revoke_mu_session_id(\"$SESSION_URI\", :$STRATEGY)"
 fi
 
 elixir --name "rpc@$(hostname -i)" --cookie mu-identifier \

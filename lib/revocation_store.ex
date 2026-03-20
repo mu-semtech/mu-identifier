@@ -1,4 +1,4 @@
-defmodule SessionRevocation do
+defmodule RevocationStore do
   @moduledoc """
   Revokes mu-auth-allowed-groups or mu-session-id
 
@@ -23,6 +23,10 @@ defmodule SessionRevocation do
 
   def revoke_mu_auth_allowed_groups_string(allowed_groups_string, strategy, persist_seconds \\ nil) do
     GenServer.call(__MODULE__, {:revoke_mu_auth_allowed_groups_string, allowed_groups_string, strategy, persist_seconds})
+  end
+
+  def reinstate_mu_session_id(mu_session_id) do
+    GenServer.call(__MODULE__, {:reinstate_mu_session_id, mu_session_id})
   end
 
   @doc "Returns a map with all currently tracked revocations, keyed by `:session_ids` and `:allowed_groups`."
@@ -77,6 +81,12 @@ defmodule SessionRevocation do
   def handle_call({:revoke_mu_auth_allowed_groups_string, allowed_groups_string, strategy, persist_seconds}, _from, state) do
     now = System.os_time(:second)
     :ets.insert(@allowed_groups_string_table, {allowed_groups_string, now, strategy, persist_until(now, persist_seconds)})
+    {:reply, :ok, state}
+  end
+
+  @impl true
+  def handle_call({:reinstate_mu_session_id, mu_session_id}, _from, state) do
+    :ets.delete(@session_id_string_table, mu_session_id)
     {:reply, :ok, state}
   end
 

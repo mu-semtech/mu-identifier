@@ -35,6 +35,6 @@ describe('Session max age (clear_session strategy)', () => {
 
     const response2 = await request('/test', { headers: { cookie } });
     assertStatus(response2, 200);
-    assert.equal(response2.headers.get('x-received-mu-previous-session-id'), firstSessionId);
+    assert.equal(response2.headers.get('x-received-previous-mu-session-id'), firstSessionId);
   });
 });

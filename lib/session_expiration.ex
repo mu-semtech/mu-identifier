@@ -26,16 +26,12 @@ defmodule SessionExpiration do
       |> Plug.Conn.assign(:groups_issued_at, nil)
       |> Plug.Conn.assign(:session_valid_until, nil)
 
-    {[{"mu-previous-session-id", old_session_id} | headers], frontend_connection}
+    {[{"previous-mu-session-id", old_session_id} | headers], frontend_connection}
   end
 
   def handle(:unauthorized, frontend_connection, headers) do
-    frontend_connection =
-      frontend_connection
-      |> Plug.Conn.send_resp(401, "")
-      |> Plug.Conn.halt()
-
-    {headers, frontend_connection}
+    {[{"mu-auth-unauthorized", "true"} | headers],
+     Plug.Conn.assign(frontend_connection, :mu_auth_unauthorized, true)}
   end
 
   def handle(nil, frontend_connection, headers) do

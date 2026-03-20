@@ -1,13 +1,17 @@
 defmodule Manipulators.WriteSessionCookie do
   @moduledoc """
   Flushes session assigns to the cookie session when the delivery mode is `:cookie`.
-
-  This is a no-op for JWT clients, leaving their session cookie untouched.
   """
 
   @behaviour ProxyManipulator
 
   @impl true
+  def headers(headers, {frontend_connection, backend_connection})
+      when frontend_connection.assigns.mu_auth_unauthorized == true and
+             frontend_connection.assigns.reinstate_revoked_session != true do
+    {headers, {frontend_connection, backend_connection}}
+  end
+
   def headers(headers, {frontend_connection, backend_connection}) do
     frontend_connection =
       if frontend_connection.assigns[:session_delivery_mode] == :cookie do

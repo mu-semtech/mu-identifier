@@ -1,5 +1,6 @@
 import assert from 'assert';
 import { request, assertStatus } from '../helpers.js';
+import { backend } from '../mock-backend.js';
 
 const PAST_TIMESTAMP = '1000';
 
@@ -15,6 +16,22 @@ describe('Client-enforced session clearing', () => {
     });
     assertStatus(response2, 200);
     assert.notEqual(response2.headers.get('x-received-mu-session-id'), firstSessionId);
+  });
+
+  it('forwards previous-mu-session-id and previous-mu-auth-allowed-groups on session clear', async () => {
+    const groups = '[{"name":"admin","variables":[]}]';
+    const response1 = await request('/test', {
+      headers: { 'x-test-response-mu-auth-allowed-groups': groups }
+    });
+    const sessionId = response1.headers.get('x-received-mu-session-id');
+    const cookie = response1.headers.get('set-cookie').split(';')[0];
+
+    const hit = backend.expect((req) => {
+      assert.equal(req.headers['previous-mu-session-id'], sessionId);
+      assert.equal(req.headers['previous-mu-auth-allowed-groups'], groups);
+    });
+    await request('/test', { headers: { cookie, 'mu-session-clear': 'true' } });
+    hit.verify();
   });
 
   it('allows recovery from a 401 by sending Mu-Session-Clear', async () => {

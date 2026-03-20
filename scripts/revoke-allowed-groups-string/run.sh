@@ -7,9 +7,9 @@ ESCAPED_GROUPS=$(printf '%s' "$ALLOWED_GROUPS" | sed 's/"/\\"/g')
 IDENTIFIER_IP=$(getent hosts identifier | awk '{print $1}')
 
 if [ -n "$DURATION" ]; then
-  CALL="SessionRevocation.revoke_mu_auth_allowed_groups_string(\"$ESCAPED_GROUPS\", :$STRATEGY, $DURATION)"
+  CALL="RevocationStore.revoke_mu_auth_allowed_groups_string(\"$ESCAPED_GROUPS\", :$STRATEGY, $DURATION)"
 else
-  CALL="SessionRevocation.revoke_mu_auth_allowed_groups_string(\"$ESCAPED_GROUPS\", :$STRATEGY)"
+  CALL="RevocationStore.revoke_mu_auth_allowed_groups_string(\"$ESCAPED_GROUPS\", :$STRATEGY)"
 fi
 
 elixir --name "rpc@$(hostname -i)" --cookie mu-identifier \

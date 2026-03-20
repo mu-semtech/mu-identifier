@@ -3,12 +3,13 @@ import { createServer } from 'http';
 function defaultHandler(req, res) {
   const headers = { 'content-type': 'application/json' };
   for (const [k, v] of Object.entries(req.headers)) {
-    if (k.startsWith('mu-')) headers['x-received-' + k] = v;
+    if (k.startsWith('mu-') || k.startsWith('previous-mu-')) headers['x-received-' + k] = v;
   }
   for (const [k, v] of Object.entries(req.headers)) {
     if (k.startsWith('x-test-response-')) headers[k.slice('x-test-response-'.length)] = v;
   }
-  const status = parseInt(req.headers['x-test-status'] || '200');
+  const isUnauthorized = req.headers['mu-auth-unauthorized'] === 'true';
+  const status = isUnauthorized ? 401 : parseInt(req.headers['x-test-status'] || '200');
   res.writeHead(status, headers);
   res.end(JSON.stringify({ ok: true }));
 }

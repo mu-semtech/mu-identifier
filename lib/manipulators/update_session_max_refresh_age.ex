@@ -13,6 +13,12 @@ defmodule Manipulators.UpdateSessionMaxRefreshAge do
   @behaviour ProxyManipulator
 
   @impl true
+  def headers(headers, {frontend_connection, backend_connection})
+      when frontend_connection.assigns.mu_auth_unauthorized == true and
+             frontend_connection.assigns.reinstate_revoked_session != true do
+    {headers, {frontend_connection, backend_connection}}
+  end
+
   def headers(headers, {frontend_connection, backend_connection}) do
     case Application.get_env(:mu_identifier, :session_max_refresh_age_seconds) do
       nil ->

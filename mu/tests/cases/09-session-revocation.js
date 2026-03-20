@@ -35,7 +35,7 @@ describe('Session revocation', function() {
       const res = await request('/test', { headers: { cookie: CLEAR_SESSION_COOKIE } });
       assertStatus(res, 200);
       assert.notEqual(res.headers.get('x-received-mu-session-id'), CLEAR_SESSION_ID);
-      assert.equal(res.headers.get('x-received-mu-previous-session-id'), CLEAR_SESSION_ID);
+      assert.equal(res.headers.get('x-received-previous-mu-session-id'), CLEAR_SESSION_ID);
     });
   });
 

@@ -6,3 +6,4 @@ erl_crash.dump
 .elixir_ls
 /mu/tests/.tmp
 /mu/tests/infrastructure/node_modules
+/mu/tests/.test-identifier-env

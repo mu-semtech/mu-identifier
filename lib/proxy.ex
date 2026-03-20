@@ -32,6 +32,7 @@ defmodule Proxy do
     Manipulators.AddCustomRequestHeaders
   ]
   @response_manipulators [
+    Manipulators.ReinstateRevokedSession,
     Manipulators.PutAllowedGroupsInSession,
     Manipulators.UpdateSessionMaxAge,
     Manipulators.UpdateSessionMaxRefreshAge,

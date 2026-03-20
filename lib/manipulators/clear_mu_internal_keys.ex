@@ -19,7 +19,10 @@ defmodule Manipulators.ClearMuInternalKeys do
       |> List.keydelete("mu-auth-token", 0)
       |> List.keydelete("mu-session-delivery-mode", 0)
       |> List.keydelete("mu-session-valid-until", 0)
-      |> List.keydelete("mu-previous-session-id", 0)
+      |> List.keydelete("previous-mu-session-id", 0)
+      |> List.keydelete("mu-auth-unauthorized", 0)
+      |> List.keydelete("mu-auth-reinstate-session", 0)
+      |> List.keydelete("previous-mu-auth-allowed-groups", 0)
 
     { headers, connection }
   end

@@ -150,7 +150,8 @@ A backend service declares how long a session should remain valid by setting `Mu
 When a session exceeds its max age, `SESSION_MAX_AGE_STRATEGY` is applied:
 
 * `clear_allowed_groups`: clears cached access rights so the backend recalculates them on the next request.
-* `clear_session`: starts a fresh session as if it were the first connection.  The backend receives the previous session URI in `Mu-Previous-Session-Id`.
+* `clear_session`: starts a fresh session as if it were the first connection.  The backend receives the previous session URI in `Previous-Mu-Session-Id`.
+* `unauthorized`: forwards the request to the backend with the `Mu-Auth-Unauthorized` header present.  Session state is frozen; see [How to recover from an unauthorized session](#how-to-recover-from-an-unauthorized-session).
 
 **Idle timeout**
 
@@ -161,6 +162,27 @@ Note that lowering `SESSION_MAX_REFRESH_AGE_SECONDS` tightens the idle window re
 **Client-side expiration information**
 
 The identifier adds `Mu-Session-Expires-In` and `Mu-Session-Refresh-Expires-In` (in seconds) to responses so clients can track expiration without depending on server clock synchronisation.
+
+### How to recover from an unauthorized session
+
+When the `unauthorized` strategy is applied, every subsequent request from the same session receives a 401 and session state is frozen. There are two ways to unfreeze it.
+
+#### Client-initiated reset
+
+Enable `MU_ALLOW_SESSION_CLEAR_HEADER` and have the client send `Mu-Session-Clear: true` on its next request. The identifier drops all session state and issues a fresh session as if it were the client's first request.
+
+    services:
+      identifier:
+        environment:
+          MU_ALLOW_SESSION_CLEAR_HEADER: "true"
+
+#### Backend-initiated reinstatement
+
+A backend service can accept the session again by resolving whatever caused the unauthorized state and including the following header in its response:
+
+    Mu-Auth-Reinstate-Session: true
+
+Other session-affecting headers in the same response are processed normally.
 
 ### Log the allowed groups in a running stack
 
@@ -231,9 +253,10 @@ All settings are configured through environment variables.
 * `SESSION_COOKIE_HTTP_ONLY`: Set HTTP_ONLY flag of the session cookie (see [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie)), on by default.
 * `SESSION_COOKIE_SAME_SITE`: Set SAME_SITE flag of the session cookie (see [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie)), "Lax" by default unless `DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN_HEADER` is "*" then "None" by default.  This means the cookie is available only on your site unless you've also set the CORS header.
 * `DEFAULT_SESSION_MAX_AGE_SECONDS`: default session lifetime in seconds.  Backends may set a longer or shorter lifetime per-session via `Mu-Session-Valid-Until`.
-* `SESSION_MAX_AGE_STRATEGY`: strategy applied when a session exceeds its max age.  Accepted values: `clear_allowed_groups`, `clear_session`.
+* `SESSION_MAX_AGE_STRATEGY`: strategy applied when a session exceeds its max age.  Accepted values: `clear_allowed_groups`, `clear_session`, `unauthorized`.
 * `SESSION_MAX_REFRESH_AGE_SECONDS`: maximum idle time in seconds before the configured strategy fires.
-* `SESSION_MAX_REFRESH_AGE_STRATEGY`: strategy applied when a session exceeds its idle timeout.  Accepted values: `clear_allowed_groups`, `clear_session`.
+* `SESSION_MAX_REFRESH_AGE_STRATEGY`: strategy applied when a session exceeds its idle timeout.  Accepted values: `clear_allowed_groups`, `clear_session`, `unauthorized`.
+* `MU_ALLOW_SESSION_CLEAR_HEADER`: when set to `true`, clients may send `Mu-Session-Clear: true` to initiate a new session as if it were their first request.  Disabled by default.
 * `IDLE_TIMEOUT`: the amount of time (in ms) that idle requests will be kept open (see [`idle_timeout` in the Cowboy docs](https://ninenines.eu/docs/en/cowboy/2.5/manual/cowboy_http/))
 * `OVERRIDE_VARY_HEADER`: EXPERIMENTAL When set, the [`Vary` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary) is overriden with the specified variable, regardless of what the backend provides.
 
@@ -280,6 +303,30 @@ Seconds remaining until the session's max age expires.  Present in the response 
 
 Seconds remaining in the idle window before the session refresh strategy fires.  Present in the response when `SESSION_MAX_REFRESH_AGE_SECONDS` is configured.
 
-#### Passes `Mu-Previous-Session-Id` to backend
+#### Received `Mu-Session-Clear` from client
+
+When `MU_ALLOW_SESSION_CLEAR_HEADER` is enabled and this header is present, the identifier clears all session state and processes the request as a first request, forwarding `Previous-Mu-Session-Id` and `Previous-Mu-Auth-Allowed-Groups` to the backend for audit purposes.  `Mu-Session-Clear` is not forwarded to the backend.
+
+#### Passes `Previous-Mu-Auth-Allowed-Groups` to backend
+
+Present in the request alongside `Previous-Mu-Session-Id` when the session was cleared by a client-initiated `Mu-Session-Clear`.  Contains the cached allowed groups string that was active before the reset, or an empty string if none were cached.
+
+#### Passes `Mu-Auth-Unauthorized` to backend
+
+Present in the request when the `unauthorized` strategy has fired.  The session URI and allowed groups are forwarded as `Revoked-Mu-Session-Id` and `Revoked-Mu-Auth-Allowed-Groups` so the backend has full context without risking them being treated as valid credentials.  All session state writes are frozen until the backend responds with the `Mu-Auth-Reinstate-Session` header.
+
+#### Passes `Revoked-Mu-Session-Id` to backend
+
+Present in the request instead of `Mu-Session-Id` when the `unauthorized` strategy has fired.  Contains the session URI for context.
+
+#### Passes `Revoked-Mu-Auth-Allowed-Groups` to backend
+
+Present in the request instead of `Mu-Auth-Allowed-Groups` when the `unauthorized` strategy has fired and the session has cached allowed groups.  Contains the stale groups for context.  No default groups are supplied in this case.
+
+#### Received `Mu-Auth-Reinstate-Session` from backend
+
+When present in the backend response, reinstates the session: removes any active revocation entry for the current session URI, resets the session expiry so it is recalculated from `DEFAULT_SESSION_MAX_AGE_SECONDS` (or from an explicit `Mu-Session-Valid-Until` in the same response), and allows all session state writes to proceed normally for this response.  The header is not forwarded to the client.
+
+#### Passes `Previous-Mu-Session-Id` to backend
 
 Present in the request when a session was cleared by an expiration or revocation strategy.  Contains the URI of the previous session so the backend can associate the new session with the old one if needed.

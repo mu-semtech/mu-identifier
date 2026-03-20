@@ -12,7 +12,20 @@ defmodule Manipulators.UpdateSessionMaxAge do
   @behaviour ProxyManipulator
 
   @impl true
+  def headers(headers, {frontend_connection, backend_connection})
+      when frontend_connection.assigns.mu_auth_unauthorized == true and
+             frontend_connection.assigns.reinstate_revoked_session != true do
+    {headers, {frontend_connection, backend_connection}}
+  end
+
   def headers(headers, {frontend_connection, backend_connection}) do
+    frontend_connection =
+      if frontend_connection.assigns[:reinstate_revoked_session] do
+        Plug.Conn.assign(frontend_connection, :session_valid_until, nil)
+      else
+        frontend_connection
+      end
+
     valid_until =
       case List.keyfind(headers, "mu-session-valid-until", 0) do
         {_key, value} ->

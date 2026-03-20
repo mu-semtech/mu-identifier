@@ -12,7 +12,7 @@ defmodule MuIdentifier do
 
     children = [
       {Secret, %{}},
-      {SessionRevocation, %{}},
+      {RevocationStore, %{}},
       {Plug.Cowboy,
        scheme: :http,
        plug: Proxy,
