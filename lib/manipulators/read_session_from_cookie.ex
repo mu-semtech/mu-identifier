@@ -22,6 +22,17 @@ defmodule Manipulators.ReadSessionFromCookie do
         frontend_connection
       end
 
+    cookie_present = Map.has_key?(frontend_connection.req_cookies, "proxy_session")
+    session_empty = frontend_connection.assigns[:mu_session_id] == nil
+
+    frontend_connection =
+      if cookie_present && session_empty do
+        strategy = Application.get_env(:mu_identifier, :invalid_session_strategy)
+        Plug.Conn.assign(frontend_connection, :invalid_credential_strategy, strategy)
+      else
+        frontend_connection
+      end
+
     {headers, {frontend_connection, backend_connection}}
   end
 

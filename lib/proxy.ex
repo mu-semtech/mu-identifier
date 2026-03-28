@@ -26,6 +26,7 @@ defmodule Proxy do
     Manipulators.ReadSessionFromJwt,
     Manipulators.ClientEnforcedSessionClearing,
     Manipulators.EnsureUserSession,
+    Manipulators.EnforceInvalidCredential,
     Manipulators.EnforceSessionRevocation,
     Manipulators.EnforceSessionMaxAge,
     Manipulators.EnforceSessionMaxRefreshAge,

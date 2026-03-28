@@ -27,7 +27,8 @@ defmodule Manipulators.ReadSessionFromJwt do
             {remaining_headers, {frontend_connection, backend_connection}}
 
           {:error, _} ->
-            # TODO: return a 401 response to indicate an invalid token was supplied.
+            strategy = Application.get_env(:mu_identifier, :invalid_jwt_token_strategy)
+            frontend_connection = Plug.Conn.assign(frontend_connection, :invalid_credential_strategy, strategy)
             {remaining_headers, {frontend_connection, backend_connection}}
         end
 

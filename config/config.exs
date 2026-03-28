@@ -77,6 +77,8 @@ config :mu_identifier,
   session_max_age_strategy: CH.system_atom("SESSION_MAX_AGE_STRATEGY"),
   session_max_refresh_age_seconds: CH.system_integer("SESSION_MAX_REFRESH_AGE_SECONDS"),
   session_max_refresh_age_strategy: CH.system_atom("SESSION_MAX_REFRESH_AGE_STRATEGY"),
+  invalid_session_strategy: CH.system_atom("INVALID_SESSION_STRATEGY", :clear_session),
+  invalid_jwt_token_strategy: CH.system_atom("INVALID_JWT_TOKEN_STRATEGY", :unauthorized),
   idle_timeout: CH.system_integer("IDLE_TIMEOUT", 300_000),
   max_url_length: CH.system_integer("MAX_URL_LENGTH", 10_000),
   override_vary_header: System.get_env("OVERRIDE_VARY_HEADER")

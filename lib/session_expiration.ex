@@ -26,7 +26,8 @@ defmodule SessionExpiration do
       |> Plug.Conn.assign(:groups_issued_at, nil)
       |> Plug.Conn.assign(:session_valid_until, nil)
 
-    {[{"previous-mu-session-id", old_session_id} | headers], frontend_connection}
+    headers = if old_session_id, do: [{"previous-mu-session-id", old_session_id} | headers], else: headers
+    {headers, frontend_connection}
   end
 
   def handle(:unauthorized, frontend_connection, headers) do
