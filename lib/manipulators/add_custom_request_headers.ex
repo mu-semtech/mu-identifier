@@ -36,7 +36,7 @@ defmodule Manipulators.AddCustomRequestHeaders do
     if Application.get_env(:mu_identifier, :log_incoming_allowed_groups) ||
          Application.get_env(:mu_identifier, :log_allowed_groups) do
       if authorization_groups do
-        IO.inspect(authorization_groups, label: "Incoming allowed groups from cookie")
+        IO.inspect(authorization_groups, label: "Incoming allowed groups")
       else
         IO.inspect(default_allowed_groups, label: "Incoming allowed groups are default")
       end

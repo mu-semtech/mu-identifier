@@ -38,7 +38,7 @@ defmodule RevocationStore do
   end
 
   @doc "Returns nil when the session URI has no pending revocation, or the strategy atom when it does."
-  def mu_session_id_revoked?(mu_session_id) do
+  def get_session_id_revocation(mu_session_id) do
     case :ets.lookup(@session_id_string_table, mu_session_id) do
       [{^mu_session_id, _revoked_at, strategy, _persist_until}] -> strategy
       [] -> nil
@@ -46,7 +46,7 @@ defmodule RevocationStore do
   end
 
   @doc "Returns nil when the groups string has no pending revocation, or {revoked_at, strategy} when it does."
-  def allowed_groups_string_revoked?(allowed_groups_string) do
+  def get_allowed_groups_revocation(allowed_groups_string) do
     case :ets.lookup(@allowed_groups_string_table, allowed_groups_string) do
       [{^allowed_groups_string, revoked_at, strategy, _persist_until}] -> {revoked_at, strategy}
       [] -> nil
