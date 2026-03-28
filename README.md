@@ -106,11 +106,11 @@ In order to set this string, we need to recreate the identifier with the new env
 
 Clients which prefer not to use cookies may choose a JWT.  The identifier will create and manage the JWT when it receives the right `Mu-Session-Delivery-Mode` header in the response.
 
-To issue a JWT, the backend service sets the delivery mode in its response:
+To issue a JWT, the backend service sets the delivery mode in its response.  Two modes are available: `jwt-header` attaches the JWT as a `Mu-Auth-Token` response header, and `jwt-body` replaces the response body with the JWT, discarding the backend's original body.
 
     Mu-Session-Delivery-Mode: https://services.semantic.works/mu-identifier/session-delivery/jwt-header
 
-The identifier generates a signed `Mu-Auth-Token` JWT and attaches it to the response.  The client stores this token and sends it on subsequent requests:
+The client stores the token and sends it on subsequent requests:
 
     Authorization: Bearer <token>
 
@@ -284,6 +284,7 @@ Controls how the identifier delivers session state to the client.  When not set,
 
 * `https://services.semantic.works/mu-identifier/session-delivery/cookie` or `:cookie`: use cookie-based session delivery (the default).
 * `https://services.semantic.works/mu-identifier/session-delivery/jwt-header` or `:jwt-header`: issue a `Mu-Auth-Token` JWT which the client should send back as `Authorization: Bearer <token>`.
+* `https://services.semantic.works/mu-identifier/session-delivery/jwt-body` or `:jwt-body`: replace the response body with the JWT; the backend's original body is discarded.
 
 Any other value causes the identifier to return an error.  The header is not forwarded to the client.
 

@@ -12,9 +12,11 @@ defmodule Manipulators.DetermineSessionDeliveryMode do
           case value do
             "https://services.semantic.works/mu-identifier/session-delivery/jwt-header" -> :jwt_header
             ":jwt-header" -> :jwt_header
+            "https://services.semantic.works/mu-identifier/session-delivery/jwt-body" -> :jwt_body
+            ":jwt-body" -> :jwt_body
             "https://services.semantic.works/mu-identifier/session-delivery/cookie" -> :cookie
             ":cookie" -> :cookie
-            _ -> raise "Unknown Mu-Session-Delivery-Mode value: #{value}. Known values: https://services.semantic.works/mu-identifier/session-delivery/jwt-header, :jwt-header, https://services.semantic.works/mu-identifier/session-delivery/cookie, :cookie"
+            _ -> raise "Unknown Mu-Session-Delivery-Mode value: #{value}. Known values: https://services.semantic.works/mu-identifier/session-delivery/jwt-header, :jwt-header, https://services.semantic.works/mu-identifier/session-delivery/jwt-body, :jwt-body, https://services.semantic.works/mu-identifier/session-delivery/cookie, :cookie"
           end
       end
 
