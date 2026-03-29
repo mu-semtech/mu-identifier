@@ -5,24 +5,32 @@ defmodule Manipulators.ClearMuInternalKeys do
   def headers(headers, connection) do
     headers =
       headers
-      |> List.keydelete("x-cache", 0)
+      # Session identity headers (set by mu-identifier, not clients or backends)
+      |> List.keydelete("mu-session-id", 0)
+      |> List.keydelete("revoked-mu-session-id", 0)
+      |> List.keydelete("previous-mu-session-id", 0)
+      # Call tracing headers
+      |> List.keydelete("mu-call-id", 0)
+      |> List.keydelete("mu-call-id-trail", 0)
+      # Authorization headers
       |> List.keydelete("mu-auth-allowed-groups", 0)
+      |> List.keydelete("revoked-mu-auth-allowed-groups", 0)
+      |> List.keydelete("previous-mu-auth-allowed-groups", 0)
       |> List.keydelete("mu-auth-used-groups", 0)
       |> List.keydelete("mu-auth-scope", 0)
-      |> List.keydelete("cache-keys", 0)
-      |> List.keydelete("clear-keys", 0)
       |> List.keydelete("mu-auth-sudo", 0)
-      # Token and cookie material must not be forwarded to backends,
-      # and backends must not be able to set their own cookies or tokens.
+      |> List.keydelete("mu-unauthorized", 0)
+      # Session control headers
+      |> List.keydelete("mu-auth-reinstate-session", 0)
+      |> List.keydelete("mu-session-delivery-mode", 0)
+      |> List.keydelete("mu-session-valid-until", 0)
       |> List.keydelete("cookie", 0)
       |> List.keydelete("set-cookie", 0)
       |> List.keydelete("mu-auth-token", 0)
-      |> List.keydelete("mu-session-delivery-mode", 0)
-      |> List.keydelete("mu-session-valid-until", 0)
-      |> List.keydelete("previous-mu-session-id", 0)
-      |> List.keydelete("mu-auth-unauthorized", 0)
-      |> List.keydelete("mu-auth-reinstate-session", 0)
-      |> List.keydelete("previous-mu-auth-allowed-groups", 0)
+      # Cache headers
+      |> List.keydelete("x-cache", 0)
+      |> List.keydelete("cache-keys", 0)
+      |> List.keydelete("clear-keys", 0)
 
     { headers, connection }
   end

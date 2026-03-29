@@ -15,19 +15,20 @@ defmodule Manipulators.EnforceSessionMaxRefreshAge do
     max_refresh_age_seconds = Application.get_env(:mu_identifier, :session_max_refresh_age_seconds)
     session_last_activity_at = frontend_connection.assigns[:session_last_activity_at]
 
-    {headers, frontend_connection} =
-      if max_refresh_age_seconds && session_last_activity_at &&
-           now - session_last_activity_at > max_refresh_age_seconds do
+    if max_refresh_age_seconds && session_last_activity_at &&
+         now - session_last_activity_at > max_refresh_age_seconds do
+      {headers, frontend_connection} =
         SessionExpiration.handle(
           Application.get_env(:mu_identifier, :session_max_refresh_age_strategy),
           frontend_connection,
-          headers
+          headers,
+          :session_max_refresh_age_exceeded
         )
-      else
-        {headers, frontend_connection}
-      end
 
-    {headers, {frontend_connection, backend_connection}}
+      {headers, {frontend_connection, backend_connection}}
+    else
+      {headers, {frontend_connection, backend_connection}}
+    end
   end
 
   @impl true

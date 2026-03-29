@@ -6,22 +6,20 @@ defmodule Manipulators.WriteSessionCookie do
   @behaviour ProxyManipulator
 
   @impl true
-  def headers(headers, {frontend_connection, backend_connection})
-      when frontend_connection.assigns.mu_auth_unauthorized == true and
-             frontend_connection.assigns.reinstate_revoked_session != true do
-    {headers, {frontend_connection, backend_connection}}
-  end
-
   def headers(headers, {frontend_connection, backend_connection}) do
+    skip_session_write =
+      frontend_connection.assigns[:mu_unauthorized] == true &&
+        frontend_connection.assigns[:reinstate_revoked_session] != true
+
     frontend_connection =
-      if frontend_connection.assigns[:session_delivery_mode] == :cookie do
-        previous = frontend_connection.assigns[:mu_previous_session_state]
+      if frontend_connection.assigns[:session_delivery_mode] == :cookie && !skip_session_write do
+        previous = frontend_connection.assigns[:previous_session_state]
         current = %{
           session_delivery_mode: frontend_connection.assigns[:session_delivery_mode],
           mu_session_id: frontend_connection.assigns[:mu_session_id],
           mu_auth_allowed_groups: frontend_connection.assigns[:mu_auth_allowed_groups],
-          groups_issued_at: frontend_connection.assigns[:groups_issued_at],
-          session_valid_until: frontend_connection.assigns[:session_valid_until],
+          session_allowed_groups_set_at: frontend_connection.assigns[:session_allowed_groups_set_at],
+          session_max_expires_at: frontend_connection.assigns[:session_max_expires_at],
           session_last_activity_at: frontend_connection.assigns[:session_last_activity_at]
         }
 
@@ -30,10 +28,10 @@ defmodule Manipulators.WriteSessionCookie do
           # before writing.
           # See: https://hexdocs.pm/plug/Plug.Conn.html#put_session/3
           frontend_connection
-          |> put_or_delete(:proxy_user_id, current.mu_session_id)
+          |> put_or_delete(:mu_session_id, current.mu_session_id)
           |> put_or_delete(:mu_auth_allowed_groups, current.mu_auth_allowed_groups)
-          |> put_or_delete(:groups_issued_at, current.groups_issued_at)
-          |> put_or_delete(:session_valid_until, current.session_valid_until)
+          |> put_or_delete(:session_allowed_groups_set_at, current.session_allowed_groups_set_at)
+          |> put_or_delete(:session_max_expires_at, current.session_max_expires_at)
           |> put_or_delete(:session_last_activity_at, current.session_last_activity_at)
         else
           frontend_connection

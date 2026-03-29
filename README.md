@@ -161,7 +161,7 @@ Note that lowering `SESSION_MAX_REFRESH_AGE_SECONDS` tightens the idle window re
 
 **Client-side expiration information**
 
-The identifier adds `Mu-Session-Expires-In` and `Mu-Session-Refresh-Expires-In` (in seconds) to responses so clients can track expiration without depending on server clock synchronisation.
+The identifier adds `Mu-Session-Max-Expires-In` and `Mu-Session-Refresh-Expires-In` (in seconds) to responses.
 
 ### How to recover from an unauthorized session
 
@@ -256,8 +256,8 @@ All settings are configured through environment variables.
 * `SESSION_MAX_AGE_STRATEGY`: strategy applied when a session exceeds its max age.  Accepted values: `clear_allowed_groups`, `clear_session`, `unauthorized`.
 * `SESSION_MAX_REFRESH_AGE_SECONDS`: maximum idle time in seconds before the configured strategy fires.
 * `SESSION_MAX_REFRESH_AGE_STRATEGY`: strategy applied when a session exceeds its idle timeout.  Accepted values: `clear_allowed_groups`, `clear_session`, `unauthorized`.
-* `INVALID_SESSION_STRATEGY`: strategy applied when a `proxy_session` cookie is present but cannot be decrypted.  Accepted values: `clear_allowed_groups`, `clear_session`, `unauthorized`.  Defaults to `clear_session`.  Note: `unauthorized` will not forward session headers to the backend as no session data is available.
-* `INVALID_JWT_TOKEN_STRATEGY`: strategy applied when an `Authorization: Bearer` token fails to decode.  Accepted values: `clear_allowed_groups`, `clear_session`, `unauthorized`.  Defaults to `unauthorized` (EXPERIMENTAL, subject to change).  Note: `unauthorized` will not forward session headers to the backend as no session data is available.
+* `INVALID_SESSION_STRATEGY`: strategy applied when a `proxy_session` cookie is present but cannot be decrypted.  Accepted values: `clear_session`, `unauthorized`.  Defaults to `clear_session`.  Note: `unauthorized` will not forward session headers to the backend as no session data is available.
+* `INVALID_JWT_TOKEN_STRATEGY`: strategy applied when an `Authorization: Bearer` token fails to decode.  Accepted values: `clear_session`, `unauthorized`.  Defaults to `unauthorized` (EXPERIMENTAL, subject to change).  Note: `unauthorized` will not forward session headers to the backend as no session data is available.
 * `MU_ALLOW_SESSION_CLEAR_HEADER`: when set to `true`, clients may send `Mu-Session-Clear: true` to initiate a new session as if it were their first request.  Disabled by default.
 * `IDLE_TIMEOUT`: the amount of time (in ms) that idle requests will be kept open (see [`idle_timeout` in the Cowboy docs](https://ninenines.eu/docs/en/cowboy/2.5/manual/cowboy_http/))
 * `OVERRIDE_VARY_HEADER`: EXPERIMENTAL When set, the [`Vary` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary) is overriden with the specified variable, regardless of what the backend provides.
@@ -298,7 +298,7 @@ Present in the response when the backend has requested JWT delivery mode.  Conta
 
 A unix timestamp (seconds) declaring how long the current session should remain valid.  Stored in the session and used to enforce max-age expiration.  Not forwarded to the client.
 
-#### Passes `Mu-Session-Expires-In` to client
+#### Passes `Mu-Session-Max-Expires-In` to client
 
 Seconds remaining until the session's max age expires.  Present in the response when a session expiration has been set.  May be negative if the session has already expired.
 

@@ -8,7 +8,7 @@ function defaultHandler(req, res) {
   for (const [k, v] of Object.entries(req.headers)) {
     if (k.startsWith('x-test-response-')) headers[k.slice('x-test-response-'.length)] = v;
   }
-  const isUnauthorized = req.headers['mu-auth-unauthorized'] === 'true';
+  const isUnauthorized = req.headers['mu-unauthorized'] === 'true';
   const status = isUnauthorized ? 401 : parseInt(req.headers['x-test-status'] || '200');
   res.writeHead(status, headers);
   res.end(JSON.stringify({ ok: true }));

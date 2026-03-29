@@ -3,17 +3,7 @@ defmodule Manipulators.AddCustomRequestHeaders do
 
   @impl true
   def headers(headers, {frontend_connection, backend_connection}) do
-    # Clean all information which we are owner of within the stack
-    unauthorized = frontend_connection.assigns[:mu_auth_unauthorized]
-
-    clean_headers =
-      headers
-      |> List.keydelete("mu-session-id", 0)
-      |> List.keydelete("mu-call-id", 0)
-      |> List.keydelete("mu-call-id-trail", 0)
-      |> List.keydelete("mu-auth-allowed-groups", 0)
-      |> List.keydelete("revoked-mu-session-id", 0)
-      |> List.keydelete("revoked-mu-auth-allowed-groups", 0)
+    unauthorized = frontend_connection.assigns[:mu_unauthorized]
 
     session_id_header =
       if unauthorized do
@@ -25,7 +15,7 @@ defmodule Manipulators.AddCustomRequestHeaders do
     new_headers = [
       session_id_header,
       {"mu-call-id", Integer.to_string(Enum.random(0..1_000_000_000_000))}
-      | clean_headers
+      | headers
     ]
 
     authorization_groups = frontend_connection.assigns[:mu_auth_allowed_groups]

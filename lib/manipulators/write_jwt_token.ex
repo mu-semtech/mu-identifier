@@ -7,24 +7,22 @@ defmodule Manipulators.WriteJwtToken do
   @behaviour ProxyManipulator
 
   @impl true
-  def headers(headers, {frontend_connection, backend_connection})
-      when frontend_connection.assigns.mu_auth_unauthorized == true and
-             frontend_connection.assigns.reinstate_revoked_session != true do
-    {headers, {frontend_connection, backend_connection}}
-  end
-
   def headers(headers, {frontend_connection, backend_connection}) do
+    skip_session_write =
+      frontend_connection.assigns[:mu_unauthorized] == true &&
+        frontend_connection.assigns[:reinstate_revoked_session] != true
+
     mode = frontend_connection.assigns[:session_delivery_mode]
 
     {headers, frontend_connection} =
-      if mode in [:jwt_header, :jwt_body] do
-        previous = frontend_connection.assigns[:mu_previous_session_state]
+      if mode in [:jwt_header, :jwt_body] && !skip_session_write do
+        previous = frontend_connection.assigns[:previous_session_state]
         current = %{
           session_delivery_mode: mode,
           mu_session_id: frontend_connection.assigns[:mu_session_id],
           mu_auth_allowed_groups: frontend_connection.assigns[:mu_auth_allowed_groups],
-          groups_issued_at: frontend_connection.assigns[:groups_issued_at],
-          session_valid_until: frontend_connection.assigns[:session_valid_until],
+          session_allowed_groups_set_at: frontend_connection.assigns[:session_allowed_groups_set_at],
+          session_max_expires_at: frontend_connection.assigns[:session_max_expires_at],
           session_last_activity_at: frontend_connection.assigns[:session_last_activity_at]
         }
 
@@ -33,12 +31,12 @@ defmodule Manipulators.WriteJwtToken do
             %{
               "session_id" => current.mu_session_id,
               "allowed_groups" => current.mu_auth_allowed_groups,
-              "allowed_groups_set_at" => current.groups_issued_at,
+              "allowed_groups_set_at" => current.session_allowed_groups_set_at,
               "last_activity_at" => current.session_last_activity_at
             }
             |> Map.filter(fn {_k, v} -> v != nil end)
 
-          jwt = JwtToken.encode(current.session_valid_until, private)
+          jwt = JwtToken.encode(current.session_max_expires_at, private)
 
           if mode == :jwt_header do
             {[{"mu-auth-token", jwt} | headers], frontend_connection}

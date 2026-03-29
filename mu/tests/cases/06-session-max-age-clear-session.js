@@ -5,12 +5,12 @@ const PAST_TIMESTAMP = '1000';
 const FUTURE_TIMESTAMP = String(Math.floor(Date.now() / 1000) + 3600);
 
 describe('Session max age (clear_session strategy)', () => {
-  it('includes Mu-Session-Expires-In when a session valid-until is set', async () => {
+  it('includes Mu-Session-Max-Expires-In when a session valid-until is set', async () => {
     const response = await request('/test', {
       headers: { 'x-test-response-mu-session-valid-until': FUTURE_TIMESTAMP }
     });
     assertStatus(response, 200);
-    assertHasHeader(response, 'mu-session-expires-in');
+    assertHasHeader(response, 'mu-session-max-expires-in');
   });
 
   it('starts a fresh session when the max age is exceeded', async () => {

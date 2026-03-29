@@ -16,6 +16,7 @@ function identifierAcceptsConnections() {
 }
 
 before(async function waitForIdentifier() {
+  if (process.env.SKIP_IDENTIFIER_WAIT) return;
   this.timeout(MAX_WAIT_MS + 5_000);
   const deadline = Date.now() + MAX_WAIT_MS;
   while (Date.now() < deadline) {

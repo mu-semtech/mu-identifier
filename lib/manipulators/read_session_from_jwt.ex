@@ -20,15 +20,14 @@ defmodule Manipulators.ReadSessionFromJwt do
               |> Plug.Conn.assign(:session_delivery_mode, :jwt_header)
               |> Plug.Conn.assign(:mu_session_id, session_id)
               |> Plug.Conn.assign(:mu_auth_allowed_groups, Map.get(private_claims, "allowed_groups"))
-              |> Plug.Conn.assign(:groups_issued_at, Map.get(private_claims, "allowed_groups_set_at"))
-              |> Plug.Conn.assign(:session_valid_until, expires_at)
+              |> Plug.Conn.assign(:session_allowed_groups_set_at, Map.get(private_claims, "allowed_groups_set_at"))
+              |> Plug.Conn.assign(:session_max_expires_at, expires_at)
               |> Plug.Conn.assign(:session_last_activity_at, Map.get(private_claims, "last_activity_at"))
 
             {remaining_headers, {frontend_connection, backend_connection}}
 
           {:error, _} ->
-            strategy = Application.get_env(:mu_identifier, :invalid_jwt_token_strategy)
-            frontend_connection = Plug.Conn.assign(frontend_connection, :invalid_credential_strategy, strategy)
+            frontend_connection = Plug.Conn.assign(frontend_connection, :jwt_token_unreadable, true)
             {remaining_headers, {frontend_connection, backend_connection}}
         end
 

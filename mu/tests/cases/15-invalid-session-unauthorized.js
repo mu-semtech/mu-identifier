@@ -15,9 +15,9 @@ describe('Invalid session cookie (unauthorized strategy)', () => {
     assertStatus(response, 200);
   });
 
-  it('sends mu-auth-unauthorized to the backend when the session cookie is invalid', async () => {
+  it('sends mu-unauthorized to the backend when the session cookie is invalid', async () => {
     const hit = backend.expect((req) => {
-      assert.equal(req.headers['mu-auth-unauthorized'], 'true');
+      assert.equal(req.headers['mu-unauthorized'], 'true');
     });
     await request('/test', { headers: { cookie: 'proxy_session=invalid-garbage' } });
     hit.verify();

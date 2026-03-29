@@ -2,4 +2,4 @@ FROM node:lts-alpine
 WORKDIR /tests
 COPY package.json package-lock.json ./
 RUN npm ci
-COPY setup.js helpers.js mock-backend.js capture-session.js wait-for-url.js ./
+COPY setup.js helpers.js mock-backend.js capture-session.js wait-for-url.js summary-reporter.cjs summarize.js ./

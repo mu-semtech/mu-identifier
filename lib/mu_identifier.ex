@@ -7,6 +7,8 @@ defmodule MuIdentifier do
   require Logger
 
   def start(_argv, _args) do
+    validate_config()
+
     port = 80
     IO.puts("Running Proxy with Cowboy on port #{port}")
 
@@ -29,5 +31,15 @@ defmodule MuIdentifier do
     Logger.info("Mu Identifier starting on port #{port}")
 
     Supervisor.start_link(children, strategy: :one_for_one)
+  end
+
+  defp validate_config do
+    if Application.get_env(:mu_identifier, :invalid_session_strategy) == :clear_allowed_groups do
+      raise "INVALID_SESSION_STRATEGY cannot be set to clear_allowed_groups."
+    end
+
+    if Application.get_env(:mu_identifier, :invalid_jwt_token_strategy) == :clear_allowed_groups do
+      raise "INVALID_JWT_TOKEN_STRATEGY cannot be set to clear_allowed_groups."
+    end
   end
 end

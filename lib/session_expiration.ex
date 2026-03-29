@@ -6,16 +6,18 @@ defmodule SessionExpiration do
   forward the result directly without restructuring.
   """
 
-  def handle(:clear_allowed_groups, frontend_connection, headers) do
+  def handle(strategy, frontend_connection, headers, label \\ nil)
+
+  def handle(:clear_allowed_groups, frontend_connection, headers, _label) do
     frontend_connection =
       frontend_connection
       |> Plug.Conn.assign(:mu_auth_allowed_groups, nil)
-      |> Plug.Conn.assign(:groups_issued_at, nil)
+      |> Plug.Conn.assign(:session_allowed_groups_set_at, nil)
 
     {headers, frontend_connection}
   end
 
-  def handle(:clear_session, frontend_connection, headers) do
+  def handle(:clear_session, frontend_connection, headers, _label) do
     old_session_id = frontend_connection.assigns[:mu_session_id]
     new_session_id = Manipulators.EnsureUserSession.new_session_uri()
 
@@ -23,19 +25,30 @@ defmodule SessionExpiration do
       frontend_connection
       |> Plug.Conn.assign(:mu_session_id, new_session_id)
       |> Plug.Conn.assign(:mu_auth_allowed_groups, nil)
-      |> Plug.Conn.assign(:groups_issued_at, nil)
-      |> Plug.Conn.assign(:session_valid_until, nil)
+      |> Plug.Conn.assign(:session_allowed_groups_set_at, nil)
+      |> Plug.Conn.assign(:session_max_expires_at, nil)
 
     headers = if old_session_id, do: [{"previous-mu-session-id", old_session_id} | headers], else: headers
     {headers, frontend_connection}
   end
 
-  def handle(:unauthorized, frontend_connection, headers) do
-    {[{"mu-auth-unauthorized", "true"} | headers],
-     Plug.Conn.assign(frontend_connection, :mu_auth_unauthorized, true)}
+  def handle(:unauthorized, frontend_connection, headers, label) do
+    reasons = frontend_connection.assigns[:session_revocation_reasons] || []
+
+    reasons =
+      if label do
+        [label | reasons]
+      else
+        reasons
+      end
+
+    {[{"mu-unauthorized", "true"} | headers],
+     frontend_connection
+     |> Plug.Conn.assign(:mu_unauthorized, true)
+     |> Plug.Conn.assign(:session_revocation_reasons, reasons)}
   end
 
-  def handle(nil, frontend_connection, headers) do
+  def handle(nil, frontend_connection, headers, _label) do
     {headers, frontend_connection}
   end
 end

@@ -15,9 +15,9 @@ describe('Invalid JWT (unauthorized strategy)', () => {
     assertStatus(response, 200);
   });
 
-  it('sends mu-auth-unauthorized to the backend when the JWT is invalid', async () => {
+  it('sends mu-unauthorized to the backend when the JWT is invalid', async () => {
     const hit = backend.expect((req) => {
-      assert.equal(req.headers['mu-auth-unauthorized'], 'true');
+      assert.equal(req.headers['mu-unauthorized'], 'true');
     });
     await request('/test', { headers: { authorization: 'Bearer bad-token' } });
     hit.verify();

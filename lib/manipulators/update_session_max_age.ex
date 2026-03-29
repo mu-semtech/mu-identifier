@@ -12,42 +12,50 @@ defmodule Manipulators.UpdateSessionMaxAge do
   @behaviour ProxyManipulator
 
   @impl true
-  def headers(headers, {frontend_connection, backend_connection})
-      when frontend_connection.assigns.mu_auth_unauthorized == true and
-             frontend_connection.assigns.reinstate_revoked_session != true do
-    {headers, {frontend_connection, backend_connection}}
-  end
-
   def headers(headers, {frontend_connection, backend_connection}) do
-    frontend_connection =
-      if frontend_connection.assigns[:reinstate_revoked_session] do
-        Plug.Conn.assign(frontend_connection, :session_valid_until, nil)
-      else
-        frontend_connection
-      end
+    skip_session_write =
+      frontend_connection.assigns[:mu_unauthorized] == true &&
+        frontend_connection.assigns[:reinstate_revoked_session] != true
 
-    valid_until =
-      case List.keyfind(headers, "mu-session-valid-until", 0) do
-        {_key, value} ->
-          String.to_integer(value)
+    if skip_session_write do
+      {headers, {frontend_connection, backend_connection}}
+    else
+      now = System.os_time(:second)
 
-        nil ->
-          frontend_connection.assigns[:session_valid_until] ||
-            case Application.get_env(:mu_identifier, :default_session_max_age_seconds) do
-              nil -> nil
-              seconds -> System.os_time(:second) + seconds
+      default_valid_until =
+        case Application.get_env(:mu_identifier, :default_session_max_age_seconds) do
+          nil -> nil
+          seconds -> now + seconds
+        end
+
+      original_valid_until = frontend_connection.assigns[:session_max_expires_at]
+      reinstating = frontend_connection.assigns[:reinstate_revoked_session]
+      session_revocation_reasons = frontend_connection.assigns[:session_revocation_reasons] || []
+
+      valid_until =
+        case List.keyfind(headers, "mu-session-valid-until", 0) do
+          {_key, value} ->
+            String.to_integer(value)
+
+          nil ->
+            if reinstating && :session_max_age_exceeded in session_revocation_reasons
+                 && original_valid_until && default_valid_until do
+              max(original_valid_until, default_valid_until)
+            else
+              original_valid_until || default_valid_until
             end
-      end
+        end
 
-    frontend_connection = Plug.Conn.assign(frontend_connection, :session_valid_until, valid_until)
+      frontend_connection = Plug.Conn.assign(frontend_connection, :session_max_expires_at, valid_until)
 
-    headers =
-      case valid_until do
-        nil -> headers
-        _ -> [{"mu-session-expires-in", Integer.to_string(valid_until - System.os_time(:second))} | headers]
-      end
+      headers =
+        case valid_until do
+          nil -> headers
+          _ -> [{"mu-session-max-expires-in", Integer.to_string(valid_until - now)} | headers]
+        end
 
-    {headers, {frontend_connection, backend_connection}}
+      {headers, {frontend_connection, backend_connection}}
+    end
   end
 
   @impl true

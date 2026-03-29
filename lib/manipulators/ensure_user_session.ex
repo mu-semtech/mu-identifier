@@ -9,8 +9,8 @@ defmodule Manipulators.EnsureUserSession do
       session_delivery_mode: frontend_connection.assigns[:session_delivery_mode],
       mu_session_id: frontend_connection.assigns[:mu_session_id],
       mu_auth_allowed_groups: frontend_connection.assigns[:mu_auth_allowed_groups],
-      groups_issued_at: frontend_connection.assigns[:groups_issued_at],
-      session_valid_until: frontend_connection.assigns[:session_valid_until],
+      session_allowed_groups_set_at: frontend_connection.assigns[:session_allowed_groups_set_at],
+      session_max_expires_at: frontend_connection.assigns[:session_max_expires_at],
       session_last_activity_at: frontend_connection.assigns[:session_last_activity_at]
     }
 
@@ -31,7 +31,7 @@ defmodule Manipulators.EnsureUserSession do
         Plug.Conn.assign(frontend_connection, :mu_session_id, new_user_id)
       end
 
-    frontend_connection = Plug.Conn.assign(frontend_connection, :mu_previous_session_state, previous_session_state)
+    frontend_connection = Plug.Conn.assign(frontend_connection, :previous_session_state, previous_session_state)
 
     {headers, {frontend_connection, backend_connection}}
   end

@@ -11,20 +11,21 @@ defmodule Manipulators.EnforceSessionMaxAge do
   @impl true
   def headers(headers, {frontend_connection, backend_connection}) do
     now = System.os_time(:second)
-    session_valid_until = frontend_connection.assigns[:session_valid_until]
+    session_max_expires_at = frontend_connection.assigns[:session_max_expires_at]
 
-    {headers, frontend_connection} =
-      if session_valid_until && session_valid_until < now do
+    if session_max_expires_at && session_max_expires_at < now do
+      {headers, frontend_connection} =
         SessionExpiration.handle(
           Application.get_env(:mu_identifier, :session_max_age_strategy),
           frontend_connection,
-          headers
+          headers,
+          :session_max_age_exceeded
         )
-      else
-        {headers, frontend_connection}
-      end
 
-    {headers, {frontend_connection, backend_connection}}
+      {headers, {frontend_connection, backend_connection}}
+    else
+      {headers, {frontend_connection, backend_connection}}
+    end
   end
 
   @impl true

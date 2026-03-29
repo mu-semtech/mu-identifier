@@ -34,6 +34,11 @@
             "command": "^docker compose run --rm --use-aliases -e TEST_SPEC=cases/[0-9a-z-]+\\.js mocha$"
           },
           {
+            "name": "run-invalid-config-spec",
+            "comment": "Run the invalid config spec, skipping the identifier wait",
+            "command": "^docker compose run --rm --use-aliases -e TEST_SPEC=cases/17-invalid-config\\.js -e SKIP_IDENTIFIER_WAIT=1 mocha$"
+          },
+          {
             "name": "run-revocation-spec",
             "comment": "Run the session revocation spec with captured session cookies",
             "command": "^docker compose run --rm --use-aliases -e TEST_SPEC=cases/09-session-revocation\\.js( -e [A-Z_]+=[-a-zA-Z0-9._=:/]+)* mocha$"
@@ -47,6 +52,11 @@
             "name": "revocation-scripts",
             "comment": "Invoke session revocation scripts on the identifier via mu-cli",
             "command": "^(works|wo|mu) script identifier (revoke-session|revoke-allowed-groups-string)( \\S+)*$"
+          },
+          {
+            "name": "print-summary",
+            "comment": "Print the per-test summary after all specs have run",
+            "command": "^docker compose run --rm --no-deps mocha node /tests/summarize\\.js$"
           },
           {
             "name": "teardown",

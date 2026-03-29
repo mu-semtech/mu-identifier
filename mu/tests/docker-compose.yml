@@ -10,13 +10,15 @@ services:
     working_dir: /tests
     volumes:
       - ./cases:/tests/cases
+      - ./.tmp/results:/results
     networks:
       default:
         aliases:
           - dispatcher
     command: >
       sh -c "npx mocha --file setup.js
-      $${TEST_SPEC:-cases/*.js} --timeout 15000 --exit"
+      $${TEST_SPEC:-cases/*.js} --timeout 15000 --exit
+      --reporter /tests/summary-reporter.cjs"
 
   tests:
     image: semtech/mu-scripts:1.0.0

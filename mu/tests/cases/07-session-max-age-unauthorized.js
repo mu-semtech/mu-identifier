@@ -27,14 +27,14 @@ describe('Session max age (unauthorized strategy)', () => {
     assertStatus(response3, 401);
   });
 
-  it('sends mu-auth-unauthorized header to the backend on unauthorized request', async () => {
+  it('sends mu-unauthorized header to the backend on unauthorized request', async () => {
     const response1 = await request('/test', {
       headers: { 'x-test-response-mu-session-valid-until': PAST_TIMESTAMP }
     });
     const cookie = parseCookie(response1);
 
     const hit = backend.expect((req) => {
-      assert.equal(req.headers['mu-auth-unauthorized'], 'true');
+      assert.equal(req.headers['mu-unauthorized'], 'true');
     });
     const response2 = await request('/test', { headers: { cookie } });
     hit.verify();
