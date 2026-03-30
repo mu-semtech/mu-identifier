@@ -1,4 +1,4 @@
-defmodule Manipulators.EnforceSessionMaxRefreshAge do
+defmodule Manipulators.EnforceSessionKeepalive do
   @moduledoc """
   Enforces the session idle-timeout policy.  When the session has been idle for
   longer than `SESSION_MAX_REFRESH_AGE_SECONDS`, the configured

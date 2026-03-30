@@ -1,12 +1,8 @@
-defmodule Manipulators.UpdateSessionMaxAge do
+defmodule Manipulators.UpdateSessionLifetime do
   @moduledoc """
   Manages the session's max age by reading `Mu-Session-Valid-Until` from the
   backend response into the session and reporting the remaining time to the
-  client via `Mu-Session-Expires-In`.
-
-  NOTE: This manipulator reads a backend header and writes a client header and
-  must run before `ClearMuInternalKeys`.  Either this could be split or
-  `ClearMuInternalKeys` could be.
+  client via `Mu-Session-Lifetime-Expires-In`.
   """
 
   @behaviour ProxyManipulator
@@ -51,7 +47,7 @@ defmodule Manipulators.UpdateSessionMaxAge do
       headers =
         case valid_until do
           nil -> headers
-          _ -> [{"mu-session-max-expires-in", Integer.to_string(valid_until - now)} | headers]
+          _ -> [{"mu-session-lifetime-expires-in", Integer.to_string(valid_until - now)} | headers]
         end
 
       {headers, {frontend_connection, backend_connection}}

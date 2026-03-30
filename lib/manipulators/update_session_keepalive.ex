@@ -1,13 +1,9 @@
-defmodule Manipulators.UpdateSessionMaxRefreshAge do
+defmodule Manipulators.UpdateSessionKeepalive do
   @moduledoc """
   Manages the session's idle timeout by recording the current time as the last
   activity and reporting the remaining idle window to the client via
-  `Mu-Session-Refresh-Expires-In`.  Only active when `SESSION_MAX_REFRESH_AGE_SECONDS`
+  `Mu-Session-Keepalive-Expires-In`.  Only active when `SESSION_MAX_REFRESH_AGE_SECONDS`
   is configured.
-
-  NOTE: This manipulator reads a backend header and writes a client header and
-  must run before `ClearMuInternalKeys`.  Either this could be split or
-  `ClearMuInternalKeys` could be.
   """
 
   @behaviour ProxyManipulator
@@ -27,12 +23,12 @@ defmodule Manipulators.UpdateSessionMaxRefreshAge do
            && :session_max_refresh_age_exceeded in session_revocation_reasons ->
         # Reset last activity on reinstatement so the check no longer triggers.
         frontend_connection = Plug.Conn.assign(frontend_connection, :session_last_activity_at, now)
-        headers = [{"mu-session-refresh-expires-in", Integer.to_string(max_refresh)} | headers]
+        headers = [{"mu-session-keepalive-expires-in", Integer.to_string(max_refresh)} | headers]
         {headers, {frontend_connection, backend_connection}}
 
       max_refresh && !skip_session_write ->
         frontend_connection = Plug.Conn.assign(frontend_connection, :session_last_activity_at, now)
-        headers = [{"mu-session-refresh-expires-in", Integer.to_string(max_refresh)} | headers]
+        headers = [{"mu-session-keepalive-expires-in", Integer.to_string(max_refresh)} | headers]
         {headers, {frontend_connection, backend_connection}}
 
       true ->

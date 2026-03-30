@@ -161,7 +161,7 @@ Note that lowering `SESSION_MAX_REFRESH_AGE_SECONDS` tightens the idle window re
 
 **Client-side expiration information**
 
-The identifier adds `Mu-Session-Max-Expires-In` and `Mu-Session-Refresh-Expires-In` (in seconds) to responses.
+The identifier adds `Mu-Session-Lifetime-Expires-In` and `Mu-Session-Keepalive-Expires-In` (in seconds) to responses.
 
 ### How to recover from an unauthorized session
 
@@ -298,11 +298,11 @@ Present in the response when the backend has requested JWT delivery mode.  Conta
 
 A unix timestamp (seconds) declaring how long the current session should remain valid.  Stored in the session and used to enforce max-age expiration.  Not forwarded to the client.
 
-#### Passes `Mu-Session-Max-Expires-In` to client
+#### Passes `Mu-Session-Lifetime-Expires-In` to client
 
 Seconds remaining until the session's max age expires.  Present in the response when a session expiration has been set.  May be negative if the session has already expired.
 
-#### Passes `Mu-Session-Refresh-Expires-In` to client
+#### Passes `Mu-Session-Keepalive-Expires-In` to client
 
 Seconds remaining in the idle window before the session refresh strategy fires.  Present in the response when `SESSION_MAX_REFRESH_AGE_SECONDS` is configured.
 

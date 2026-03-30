@@ -21,24 +21,24 @@ defmodule Proxy do
   plug(:dispatch)
 
   @request_manipulators [
-    Manipulators.ClearMuInternalKeys,
     Manipulators.ReadSessionFromCookie,
     Manipulators.ReadSessionFromJwt,
     Manipulators.ClientEnforcedSessionClearing,
     Manipulators.EnsureUserSession,
     Manipulators.EnforceInvalidCredential,
     Manipulators.EnforceSessionRevocation,
-    Manipulators.EnforceSessionMaxAge,
-    Manipulators.EnforceSessionMaxRefreshAge,
+    Manipulators.EnforceSessionLifetime,
+    Manipulators.EnforceSessionKeepalive,
+    Manipulators.ClearIncomingHeaders,
     Manipulators.AddCustomRequestHeaders
   ]
   @response_manipulators [
     Manipulators.ReinstateRevokedSession,
     Manipulators.PutAllowedGroupsInSession,
-    Manipulators.UpdateSessionMaxAge,
-    Manipulators.UpdateSessionMaxRefreshAge,
+    Manipulators.UpdateSessionLifetime,
+    Manipulators.UpdateSessionKeepalive,
     Manipulators.DetermineSessionDeliveryMode,
-    Manipulators.ClearMuInternalKeys,
+    Manipulators.ClearOutgoingHeaders,
     Manipulators.PutCacheClearHeaders,
     Manipulators.AddCorsHeader,
     Manipulators.OverrideVaryHeader,

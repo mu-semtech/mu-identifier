@@ -3,8 +3,8 @@ defmodule Manipulators.ReadSessionFromJwt do
 
   @impl true
   def headers(headers, {frontend_connection, backend_connection}) do
-    case List.keytake(headers, "authorization", 0) do
-      {{_key, "Bearer " <> token}, remaining_headers} ->
+    case List.keyfind(headers, "authorization", 0) do
+      {_key, "Bearer " <> token} ->
         case JwtToken.decode(token) do
           {:ok, {public_claims, private_claims}} ->
             session_id = Map.get(private_claims, "session_id")
@@ -24,11 +24,11 @@ defmodule Manipulators.ReadSessionFromJwt do
               |> Plug.Conn.assign(:session_max_expires_at, expires_at)
               |> Plug.Conn.assign(:session_last_activity_at, Map.get(private_claims, "last_activity_at"))
 
-            {remaining_headers, {frontend_connection, backend_connection}}
+            {headers, {frontend_connection, backend_connection}}
 
           {:error, _} ->
             frontend_connection = Plug.Conn.assign(frontend_connection, :jwt_token_unreadable, true)
-            {remaining_headers, {frontend_connection, backend_connection}}
+            {headers, {frontend_connection, backend_connection}}
         end
 
       _ ->

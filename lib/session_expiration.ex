@@ -27,8 +27,8 @@ defmodule SessionExpiration do
       |> Plug.Conn.assign(:mu_auth_allowed_groups, nil)
       |> Plug.Conn.assign(:session_allowed_groups_set_at, nil)
       |> Plug.Conn.assign(:session_max_expires_at, nil)
+      |> Plug.Conn.assign(:previous_session_id, old_session_id)
 
-    headers = if old_session_id, do: [{"previous-mu-session-id", old_session_id} | headers], else: headers
     {headers, frontend_connection}
   end
 
@@ -42,7 +42,7 @@ defmodule SessionExpiration do
         reasons
       end
 
-    {[{"mu-unauthorized", "true"} | headers],
+    {headers,
      frontend_connection
      |> Plug.Conn.assign(:mu_unauthorized, true)
      |> Plug.Conn.assign(:session_revocation_reasons, reasons)}
