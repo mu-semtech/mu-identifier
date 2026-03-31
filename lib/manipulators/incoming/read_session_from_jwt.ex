@@ -1,4 +1,4 @@
-defmodule Manipulators.ReadSessionFromJwt do
+defmodule Manipulators.Incoming.ReadSessionFromJwt do
   @behaviour ProxyManipulator
 
   @impl true

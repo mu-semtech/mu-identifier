@@ -1,4 +1,4 @@
-defmodule Manipulators.EnsureUserSession do
+defmodule Manipulators.Incoming.EnsureUserSession do
   @behaviour ProxyManipulator
 
   @impl true

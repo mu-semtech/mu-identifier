@@ -1,4 +1,4 @@
-defmodule Manipulators.UpdateSessionKeepalive do
+defmodule Manipulators.Outgoing.UpdateSessionKeepalive do
   @moduledoc """
   Manages the session's idle timeout by recording the current time as the last
   activity and reporting the remaining idle window to the client via

@@ -1,4 +1,4 @@
-defmodule Manipulators.PutCacheClearHeaders do
+defmodule Manipulators.Outgoing.PutCacheClearHeaders do
   @behaviour ProxyManipulator
 
   @impl true

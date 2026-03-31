@@ -1,4 +1,4 @@
-defmodule Manipulators.ReadSessionFromCookie do
+defmodule Manipulators.Incoming.ReadSessionFromCookie do
   @behaviour ProxyManipulator
 
   @impl true

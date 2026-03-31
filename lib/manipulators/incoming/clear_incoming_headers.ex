@@ -1,4 +1,4 @@
-defmodule Manipulators.ClearIncomingHeaders do
+defmodule Manipulators.Incoming.ClearIncomingHeaders do
   @moduledoc """
   Strips all mu-internal and consumed headers from the request before it reaches
   the backend.

@@ -1,4 +1,4 @@
-defmodule Manipulators.WriteSessionCookie do
+defmodule Manipulators.Outgoing.WriteSessionCookie do
   @moduledoc """
   Flushes session assigns to the cookie session when the delivery mode is `:cookie`.
   """

@@ -1,4 +1,4 @@
-defmodule Manipulators.EnforceInvalidCredential do
+defmodule Manipulators.Incoming.EnforceInvalidCredential do
   @behaviour ProxyManipulator
 
   @impl true

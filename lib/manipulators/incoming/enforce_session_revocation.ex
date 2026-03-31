@@ -1,4 +1,4 @@
-defmodule Manipulators.EnforceSessionRevocation do
+defmodule Manipulators.Incoming.EnforceSessionRevocation do
   @behaviour ProxyManipulator
 
   @impl true

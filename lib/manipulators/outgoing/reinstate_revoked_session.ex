@@ -1,4 +1,4 @@
-defmodule Manipulators.ReinstateRevokedSession do
+defmodule Manipulators.Outgoing.ReinstateRevokedSession do
   @behaviour ProxyManipulator
 
   @impl true

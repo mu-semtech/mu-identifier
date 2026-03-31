@@ -19,7 +19,7 @@ defmodule SessionExpiration do
 
   def handle(:clear_session, frontend_connection, headers, _label) do
     old_session_id = frontend_connection.assigns[:mu_session_id]
-    new_session_id = Manipulators.EnsureUserSession.new_session_uri()
+    new_session_id = Manipulators.Incoming.EnsureUserSession.new_session_uri()
 
     frontend_connection =
       frontend_connection

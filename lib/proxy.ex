@@ -21,29 +21,29 @@ defmodule Proxy do
   plug(:dispatch)
 
   @request_manipulators [
-    Manipulators.ReadSessionFromCookie,
-    Manipulators.ReadSessionFromJwt,
-    Manipulators.ClientEnforcedSessionClearing,
-    Manipulators.EnsureUserSession,
-    Manipulators.EnforceInvalidCredential,
-    Manipulators.EnforceSessionRevocation,
-    Manipulators.EnforceSessionLifetime,
-    Manipulators.EnforceSessionKeepalive,
-    Manipulators.ClearIncomingHeaders,
-    Manipulators.AddCustomRequestHeaders
+    Manipulators.Incoming.ReadSessionFromCookie,
+    Manipulators.Incoming.ReadSessionFromJwt,
+    Manipulators.Incoming.ClientEnforcedSessionClearing,
+    Manipulators.Incoming.EnsureUserSession,
+    Manipulators.Incoming.EnforceInvalidCredential,
+    Manipulators.Incoming.EnforceSessionRevocation,
+    Manipulators.Incoming.EnforceSessionLifetime,
+    Manipulators.Incoming.EnforceSessionKeepalive,
+    Manipulators.Incoming.ClearIncomingHeaders,
+    Manipulators.Incoming.AddCustomRequestHeaders
   ]
   @response_manipulators [
-    Manipulators.ReinstateRevokedSession,
-    Manipulators.PutAllowedGroupsInSession,
-    Manipulators.UpdateSessionLifetime,
-    Manipulators.UpdateSessionKeepalive,
-    Manipulators.DetermineSessionDeliveryMode,
-    Manipulators.ClearOutgoingHeaders,
-    Manipulators.PutCacheClearHeaders,
-    Manipulators.AddCorsHeader,
-    Manipulators.OverrideVaryHeader,
-    Manipulators.WriteSessionCookie,
-    Manipulators.WriteJwtToken
+    Manipulators.Outgoing.ReinstateRevokedSession,
+    Manipulators.Outgoing.PutAllowedGroupsInSession,
+    Manipulators.Outgoing.UpdateSessionLifetime,
+    Manipulators.Outgoing.UpdateSessionKeepalive,
+    Manipulators.Outgoing.DetermineSessionDeliveryMode,
+    Manipulators.Outgoing.ClearOutgoingHeaders,
+    Manipulators.Outgoing.PutCacheClearHeaders,
+    Manipulators.Outgoing.AddCorsHeader,
+    Manipulators.Outgoing.OverrideVaryHeader,
+    Manipulators.Outgoing.WriteSessionCookie,
+    Manipulators.Outgoing.WriteJwtToken
   ]
   @manipulators ProxyManipulatorSettings.make_settings(
                   @request_manipulators,

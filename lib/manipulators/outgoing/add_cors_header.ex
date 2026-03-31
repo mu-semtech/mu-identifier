@@ -1,4 +1,4 @@
-defmodule Manipulators.AddCorsHeader do
+defmodule Manipulators.Outgoing.AddCorsHeader do
   @behaviour ProxyManipulator
 
   @impl true

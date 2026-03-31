@@ -1,4 +1,4 @@
-defmodule Manipulators.DetermineSessionDeliveryMode do
+defmodule Manipulators.Outgoing.DetermineSessionDeliveryMode do
   @behaviour ProxyManipulator
 
   @impl true

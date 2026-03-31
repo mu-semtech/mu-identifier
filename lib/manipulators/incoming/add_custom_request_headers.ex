@@ -1,4 +1,4 @@
-defmodule Manipulators.AddCustomRequestHeaders do
+defmodule Manipulators.Incoming.AddCustomRequestHeaders do
   @behaviour ProxyManipulator
 
   @impl true

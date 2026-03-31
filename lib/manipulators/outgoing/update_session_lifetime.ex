@@ -1,4 +1,4 @@
-defmodule Manipulators.UpdateSessionLifetime do
+defmodule Manipulators.Outgoing.UpdateSessionLifetime do
   @moduledoc """
   Manages the session's max age by reading `Mu-Session-Valid-Until` from the
   backend response into the session and reporting the remaining time to the

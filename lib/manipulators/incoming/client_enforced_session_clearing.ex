@@ -1,4 +1,4 @@
-defmodule Manipulators.ClientEnforcedSessionClearing do
+defmodule Manipulators.Incoming.ClientEnforcedSessionClearing do
   @moduledoc """
   Clears the session assigns when the client sends a `Mu-Session-Clear` header.
 

@@ -1,4 +1,4 @@
-defmodule Manipulators.EnforceSessionLifetime do
+defmodule Manipulators.Incoming.EnforceSessionLifetime do
   @moduledoc """
   Enforces the session max-age policy.  When the session has exceeded its
   maximum age, the configured `SESSION_MAX_AGE_STRATEGY` is applied.

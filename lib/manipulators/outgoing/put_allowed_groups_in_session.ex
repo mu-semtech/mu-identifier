@@ -1,4 +1,4 @@
-defmodule Manipulators.PutAllowedGroupsInSession do
+defmodule Manipulators.Outgoing.PutAllowedGroupsInSession do
   @behaviour ProxyManipulator
 
   @impl true

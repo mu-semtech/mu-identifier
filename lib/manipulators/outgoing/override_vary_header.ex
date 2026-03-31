@@ -1,4 +1,4 @@
-defmodule Manipulators.OverrideVaryHeader do
+defmodule Manipulators.Outgoing.OverrideVaryHeader do
   @behaviour ProxyManipulator
 
   @impl true

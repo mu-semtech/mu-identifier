@@ -1,4 +1,4 @@
-defmodule Manipulators.WriteJwtToken do
+defmodule Manipulators.Outgoing.WriteJwtToken do
   @moduledoc """
   Issues a JWT when the delivery mode is `:jwt_header` or `:jwt_body`
   and the session state has changed since the request began.
