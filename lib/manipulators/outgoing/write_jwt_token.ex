@@ -22,7 +22,7 @@ defmodule Manipulators.Outgoing.WriteJwtToken do
           mu_session_id: frontend_connection.assigns[:mu_session_id],
           mu_auth_allowed_groups: frontend_connection.assigns[:mu_auth_allowed_groups],
           session_allowed_groups_set_at: frontend_connection.assigns[:session_allowed_groups_set_at],
-          session_max_expires_at: frontend_connection.assigns[:session_max_expires_at],
+          session_lifetime_expires_at: frontend_connection.assigns[:session_lifetime_expires_at],
           session_last_activity_at: frontend_connection.assigns[:session_last_activity_at]
         }
 
@@ -36,7 +36,7 @@ defmodule Manipulators.Outgoing.WriteJwtToken do
             }
             |> Map.filter(fn {_k, v} -> v != nil end)
 
-          jwt = JwtToken.encode(current.session_max_expires_at, private)
+          jwt = JwtToken.encode(current.session_lifetime_expires_at, private)
 
           if mode == :jwt_header do
             {[{"mu-auth-token", jwt} | headers], frontend_connection}

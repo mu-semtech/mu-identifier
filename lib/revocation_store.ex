@@ -5,10 +5,10 @@ defmodule RevocationStore do
   Both mu-auth-allowed-groups and mu-session-id are currently revoked based on their string value.
 
   Revocation entries persist until their individual expiration, set at revocation time.  When no
-  explicit duration is supplied, entries persist for 2x DEFAULT_SESSION_MAX_AGE_SECONDS.  When
-  DEFAULT_SESSION_MAX_AGE_SECONDS is not configured either, entries are never purged.
+  explicit duration is supplied, entries persist for 2x DEFAULT_SESSION_LIFETIME_SECONDS.  When
+  DEFAULT_SESSION_LIFETIME_SECONDS is not configured either, entries are never purged.
 
-  Note that a backend may have set a session lifetime longer than DEFAULT_SESSION_MAX_AGE_SECONDS.
+  Note that a backend may have set a session lifetime longer than DEFAULT_SESSION_LIFETIME_SECONDS.
   In that case, supply an explicit duration when revoking to ensure the entry outlives the session.
   """
 
@@ -38,6 +38,7 @@ defmodule RevocationStore do
   end
 
   @doc "Returns nil when the session URI has no pending revocation, or the strategy atom when it does."
+  def get_session_id_revocation(nil), do: nil
   def get_session_id_revocation(mu_session_id) do
     case :ets.lookup(@session_id_string_table, mu_session_id) do
       [{^mu_session_id, _revoked_at, strategy, _persist_until}] -> strategy
@@ -46,6 +47,7 @@ defmodule RevocationStore do
   end
 
   @doc "Returns nil when the groups string has no pending revocation, or {revoked_at, strategy} when it does."
+  def get_allowed_groups_revocation(nil), do: nil
   def get_allowed_groups_revocation(allowed_groups_string) do
     case :ets.lookup(@allowed_groups_string_table, allowed_groups_string) do
       [{^allowed_groups_string, revoked_at, strategy, _persist_until}] -> {revoked_at, strategy}
@@ -102,7 +104,7 @@ defmodule RevocationStore do
   end
 
   defp persist_until(now, nil) do
-    case Application.get_env(:mu_identifier, :default_session_max_age_seconds) do
+    case Application.get_env(:mu_identifier, :default_session_lifetime_seconds) do
       nil -> :infinity
       seconds -> now + seconds * 2
     end
@@ -110,7 +112,7 @@ defmodule RevocationStore do
   defp persist_until(now, persist_seconds), do: now + persist_seconds
 
   defp schedule_cleanup do
-    case Application.get_env(:mu_identifier, :default_session_max_age_seconds) do
+    case Application.get_env(:mu_identifier, :default_session_lifetime_seconds) do
       nil -> :ok
       ttl -> Process.send_after(self(), :cleanup, ttl * 1000)
     end

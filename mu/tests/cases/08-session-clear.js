@@ -27,8 +27,8 @@ describe('Client-enforced session clearing', () => {
     const cookie = response1.headers.get('set-cookie').split(';')[0];
 
     const hit = backend.expect((req) => {
-      assert.equal(req.headers['previous-mu-session-id'], sessionId);
-      assert.equal(req.headers['previous-mu-auth-allowed-groups'], groups);
+      assert.equal(req.headers['cleared-mu-session-id'], sessionId);
+      assert.equal(req.headers['cleared-mu-auth-allowed-groups'], groups);
     });
     await request('/test', { headers: { cookie, 'mu-session-clear': 'true' } });
     hit.verify();

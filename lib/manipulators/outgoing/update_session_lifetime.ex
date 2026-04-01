@@ -19,12 +19,12 @@ defmodule Manipulators.Outgoing.UpdateSessionLifetime do
       now = System.os_time(:second)
 
       default_valid_until =
-        case Application.get_env(:mu_identifier, :default_session_max_age_seconds) do
+        case Application.get_env(:mu_identifier, :default_session_lifetime_seconds) do
           nil -> nil
           seconds -> now + seconds
         end
 
-      original_valid_until = frontend_connection.assigns[:session_max_expires_at]
+      original_valid_until = frontend_connection.assigns[:session_lifetime_expires_at]
       reinstating = frontend_connection.assigns[:reinstate_revoked_session]
       session_revocation_reasons = frontend_connection.assigns[:session_revocation_reasons] || []
 
@@ -34,7 +34,7 @@ defmodule Manipulators.Outgoing.UpdateSessionLifetime do
             String.to_integer(value)
 
           nil ->
-            if reinstating && :session_max_age_exceeded in session_revocation_reasons
+            if reinstating && :session_lifetime_exceeded in session_revocation_reasons
                  && original_valid_until && default_valid_until do
               max(original_valid_until, default_valid_until)
             else
@@ -42,7 +42,7 @@ defmodule Manipulators.Outgoing.UpdateSessionLifetime do
             end
         end
 
-      frontend_connection = Plug.Conn.assign(frontend_connection, :session_max_expires_at, valid_until)
+      frontend_connection = Plug.Conn.assign(frontend_connection, :session_lifetime_expires_at, valid_until)
 
       headers =
         case valid_until do

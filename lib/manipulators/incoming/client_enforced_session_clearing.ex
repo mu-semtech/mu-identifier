@@ -1,31 +1,21 @@
 defmodule Manipulators.Incoming.ClientEnforcedSessionClearing do
   @moduledoc """
-  Clears the session assigns when the client sends a `Mu-Session-Clear` header.
-
-  Only active when `MU_ALLOW_SESSION_CLEAR_HEADER` is enabled.
+  Clear session when the client sends a `Mu-Session-Clear` header and `MU_ALLOW_SESSION_CLEAR_HEADER` is set.
   """
 
   @behaviour ProxyManipulator
 
   @impl true
   def headers(headers, {frontend_connection, backend_connection}) do
-    clear_session = List.keymember?(headers, "mu-session-clear", 0)
-    allow_session_clear = Application.get_env(:mu_identifier, :allow_session_clear_header)
+    allow_session_clearing = Application.get_env(:mu_identifier, :allow_session_clear_header)
+    requested_session_clearing = List.keymember?(headers, "mu-session-clear", 0)
 
-    if clear_session && allow_session_clear do
-      frontend_connection =
-        frontend_connection
-        |> Plug.Conn.assign(:previous_session_id, frontend_connection.assigns[:mu_session_id] || "")
-        |> Plug.Conn.assign(:previous_allowed_groups, frontend_connection.assigns[:mu_auth_allowed_groups] || "")
-        |> Plug.Conn.assign(:mu_session_id, nil)
-        |> Plug.Conn.assign(:mu_auth_allowed_groups, nil)
-        |> Plug.Conn.assign(:session_allowed_groups_set_at, nil)
-        |> Plug.Conn.assign(:session_max_expires_at, nil)
-        |> Plug.Conn.assign(:session_last_activity_at, nil)
+    if allow_session_clearing && requested_session_clearing do
+      { headers, frontend_connection } = SessionExpiration.handle(:clear_session, frontend_connection, headers, nil)
 
-      {headers, {frontend_connection, backend_connection}}
+      { headers, {frontend_connection, backend_connection} }
     else
-      {headers, {frontend_connection, backend_connection}}
+      { headers, {frontend_connection, backend_connection} }
     end
   end
 

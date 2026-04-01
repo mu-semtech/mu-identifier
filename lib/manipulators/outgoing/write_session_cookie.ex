@@ -19,7 +19,7 @@ defmodule Manipulators.Outgoing.WriteSessionCookie do
           mu_session_id: frontend_connection.assigns[:mu_session_id],
           mu_auth_allowed_groups: frontend_connection.assigns[:mu_auth_allowed_groups],
           session_allowed_groups_set_at: frontend_connection.assigns[:session_allowed_groups_set_at],
-          session_max_expires_at: frontend_connection.assigns[:session_max_expires_at],
+          session_lifetime_expires_at: frontend_connection.assigns[:session_lifetime_expires_at],
           session_last_activity_at: frontend_connection.assigns[:session_last_activity_at]
         }
 
@@ -31,7 +31,7 @@ defmodule Manipulators.Outgoing.WriteSessionCookie do
           |> put_or_delete(:mu_session_id, current.mu_session_id)
           |> put_or_delete(:mu_auth_allowed_groups, current.mu_auth_allowed_groups)
           |> put_or_delete(:session_allowed_groups_set_at, current.session_allowed_groups_set_at)
-          |> put_or_delete(:session_max_expires_at, current.session_max_expires_at)
+          |> put_or_delete(:session_lifetime_expires_at, current.session_lifetime_expires_at)
           |> put_or_delete(:session_last_activity_at, current.session_last_activity_at)
         else
           frontend_connection

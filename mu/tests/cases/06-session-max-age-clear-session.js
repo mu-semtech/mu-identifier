@@ -26,7 +26,7 @@ describe('Session max age (clear_session strategy)', () => {
     assert.notEqual(response2.headers.get('x-received-mu-session-id'), firstSessionId);
   });
 
-  it('forwards the previous session id to the backend after a session reset', async () => {
+  it('forwards the cleared session id to the backend after a session reset', async () => {
     const response1 = await request('/test', {
       headers: { 'x-test-response-mu-session-valid-until': PAST_TIMESTAMP }
     });
@@ -35,6 +35,6 @@ describe('Session max age (clear_session strategy)', () => {
 
     const response2 = await request('/test', { headers: { cookie } });
     assertStatus(response2, 200);
-    assert.equal(response2.headers.get('x-received-previous-mu-session-id'), firstSessionId);
+    assert.equal(response2.headers.get('x-received-cleared-mu-session-id'), firstSessionId);
   });
 });

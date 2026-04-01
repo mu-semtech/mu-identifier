@@ -4,8 +4,10 @@ defmodule Manipulators.Incoming.AddCustomRequestHeaders do
   @impl true
   def headers(headers, {frontend_connection, backend_connection}) do
     unauthorized = frontend_connection.assigns[:mu_unauthorized]
-    previous_session_id = frontend_connection.assigns[:previous_session_id]
-    previous_allowed_groups = frontend_connection.assigns[:previous_allowed_groups]
+    cleared_mu_session_id = frontend_connection.assigns[:cleared_mu_session_id]
+    cleared_mu_auth_allowed_groups = frontend_connection.assigns[:cleared_mu_auth_allowed_groups]
+    revoked_mu_session_id = frontend_connection.assigns[:revoked_mu_session_id]
+    revoked_mu_auth_allowed_groups = frontend_connection.assigns[:revoked_mu_auth_allowed_groups]
 
     session_id_header =
       if unauthorized do
@@ -20,8 +22,10 @@ defmodule Manipulators.Incoming.AddCustomRequestHeaders do
         {"mu-call-id", Integer.to_string(Enum.random(0..1_000_000_000_000))}
       ]
       ++ (unauthorized && [{"mu-unauthorized", "true"}] || [])
-      ++ (previous_session_id && [{"previous-mu-session-id", previous_session_id}] || [])
-      ++ (previous_allowed_groups && [{"previous-mu-auth-allowed-groups", previous_allowed_groups}] || [])
+      ++ (cleared_mu_session_id && [{"cleared-mu-session-id", cleared_mu_session_id}] || [])
+      ++ (cleared_mu_auth_allowed_groups && [{"cleared-mu-auth-allowed-groups", cleared_mu_auth_allowed_groups}] || [])
+      ++ (revoked_mu_session_id && [{"revoked-mu-session-id", revoked_mu_session_id}] || [])
+      ++ (revoked_mu_auth_allowed_groups && [{"revoked-mu-auth-allowed-groups", revoked_mu_auth_allowed_groups}] || [])
       ++ headers
 
     authorization_groups = frontend_connection.assigns[:mu_auth_allowed_groups]

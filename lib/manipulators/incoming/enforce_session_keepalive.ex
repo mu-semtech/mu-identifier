@@ -1,8 +1,8 @@
 defmodule Manipulators.Incoming.EnforceSessionKeepalive do
   @moduledoc """
   Enforces the session idle-timeout policy.  When the session has been idle for
-  longer than `SESSION_MAX_REFRESH_AGE_SECONDS`, the configured
-  `SESSION_MAX_REFRESH_AGE_STRATEGY` is applied.
+  longer than `SESSION_KEEPALIVE_SECONDS`, the configured
+  `SESSION_KEEPALIVE_STRATEGY` is applied.
 
   Supported strategies: see `SessionStrategy`.
   """
@@ -12,17 +12,17 @@ defmodule Manipulators.Incoming.EnforceSessionKeepalive do
   @impl true
   def headers(headers, {frontend_connection, backend_connection}) do
     now = System.os_time(:second)
-    max_refresh_age_seconds = Application.get_env(:mu_identifier, :session_max_refresh_age_seconds)
+    keepalive_seconds = Application.get_env(:mu_identifier, :session_keepalive_seconds)
     session_last_activity_at = frontend_connection.assigns[:session_last_activity_at]
 
-    if max_refresh_age_seconds && session_last_activity_at &&
-         now - session_last_activity_at > max_refresh_age_seconds do
+    if keepalive_seconds && session_last_activity_at &&
+         now - session_last_activity_at > keepalive_seconds do
       {headers, frontend_connection} =
         SessionExpiration.handle(
-          Application.get_env(:mu_identifier, :session_max_refresh_age_strategy),
+          Application.get_env(:mu_identifier, :session_keepalive_strategy),
           frontend_connection,
           headers,
-          :session_max_refresh_age_exceeded
+          :session_keepalive_exceeded
         )
 
       {headers, {frontend_connection, backend_connection}}

@@ -31,11 +31,11 @@ describe('Session revocation', function() {
       if (!CLEAR_SESSION_COOKIE || !CLEAR_SESSION_ID) this.skip();
     });
 
-    it('issues a new session id and forwards the previous one to the backend', async () => {
+    it('issues a new session id and forwards the cleared one to the backend', async () => {
       const res = await request('/test', { headers: { cookie: CLEAR_SESSION_COOKIE } });
       assertStatus(res, 200);
       assert.notEqual(res.headers.get('x-received-mu-session-id'), CLEAR_SESSION_ID);
-      assert.equal(res.headers.get('x-received-previous-mu-session-id'), CLEAR_SESSION_ID);
+      assert.equal(res.headers.get('x-received-cleared-mu-session-id'), CLEAR_SESSION_ID);
     });
   });
 

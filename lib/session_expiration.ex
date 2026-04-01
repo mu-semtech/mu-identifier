@@ -2,8 +2,7 @@ defmodule SessionExpiration do
   @moduledoc """
   Handles session expiration strategies shared across session enforcement manipulators.
 
-  Each strategy returns `{headers, frontend_connection}` so the caller can
-  forward the result directly without restructuring.
+  Each strategy returns `{headers, frontend_connection}`.
   """
 
   def handle(strategy, frontend_connection, headers, label \\ nil)
@@ -11,6 +10,7 @@ defmodule SessionExpiration do
   def handle(:clear_allowed_groups, frontend_connection, headers, _label) do
     frontend_connection =
       frontend_connection
+      |> Plug.Conn.assign(:cleared_mu_auth_allowed_groups, frontend_connection.assigns[:mu_auth_allowed_groups])
       |> Plug.Conn.assign(:mu_auth_allowed_groups, nil)
       |> Plug.Conn.assign(:session_allowed_groups_set_at, nil)
 
@@ -18,16 +18,21 @@ defmodule SessionExpiration do
   end
 
   def handle(:clear_session, frontend_connection, headers, _label) do
-    old_session_id = frontend_connection.assigns[:mu_session_id]
-    new_session_id = Manipulators.Incoming.EnsureUserSession.new_session_uri()
-
     frontend_connection =
       frontend_connection
-      |> Plug.Conn.assign(:mu_session_id, new_session_id)
+      |> Plug.Conn.assign(:cleared_mu_session_id, frontend_connection.assigns[:mu_session_id])
+      |> Plug.Conn.assign(:cleared_mu_auth_allowed_groups, frontend_connection.assigns[:mu_auth_allowed_groups])
+      |> Plug.Conn.assign(:mu_session_id, Manipulators.Incoming.EnsureUserSession.new_session_uri())
       |> Plug.Conn.assign(:mu_auth_allowed_groups, nil)
       |> Plug.Conn.assign(:session_allowed_groups_set_at, nil)
-      |> Plug.Conn.assign(:session_max_expires_at, nil)
-      |> Plug.Conn.assign(:previous_session_id, old_session_id)
+      |> Plug.Conn.assign(:session_lifetime_expires_at, nil)
+      |> Plug.Conn.assign(:session_last_activity_at, nil)
+      |> Plug.Conn.assign(:jwt_token_unreadable, nil)
+      |> Plug.Conn.assign(:previous_session_state, nil)
+      |> Plug.Conn.assign(:session_cookie_unreadable, nil)
+      |> Plug.Conn.assign(:session_delivery_mode, :cookie)
+      |> Plug.Conn.assign(:session_cookie_unreadable, nil)
+      |> Plug.Conn.assign(:session_revocation_reasons, [])
 
     {headers, frontend_connection}
   end

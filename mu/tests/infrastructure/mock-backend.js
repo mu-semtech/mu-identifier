@@ -3,7 +3,7 @@ import { createServer } from 'http';
 function defaultHandler(req, res) {
   const headers = { 'content-type': 'application/json' };
   for (const [k, v] of Object.entries(req.headers)) {
-    if (k.startsWith('mu-') || k.startsWith('previous-mu-')) headers['x-received-' + k] = v;
+    if (k.startsWith('mu-') || k.startsWith('previous-mu-') || k.startsWith('cleared-mu-') || k.startsWith('revoked-mu-')) headers['x-received-' + k] = v;
   }
   for (const [k, v] of Object.entries(req.headers)) {
     if (k.startsWith('x-test-response-')) headers[k.slice('x-test-response-'.length)] = v;
