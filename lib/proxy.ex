@@ -36,7 +36,7 @@ defmodule Proxy do
     Manipulators.Outgoing.ReinstateRevokedSession,
     Manipulators.Outgoing.PutAllowedGroupsInSession,
     Manipulators.Outgoing.UpdateSessionLifetime,
-    Manipulators.Outgoing.UpdateSessionKeepalive,
+    Manipulators.Outgoing.UpdateSessionKeepalive, # consider placing this after ClearOutgoingHeaders
     Manipulators.Outgoing.DetermineSessionDeliveryMode,
     Manipulators.Outgoing.ClearOutgoingHeaders,
     Manipulators.Outgoing.PutCacheClearHeaders,

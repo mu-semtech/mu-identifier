@@ -1,6 +1,6 @@
 #!/bin/sh
 ALLOWED_GROUPS=$1
-STRATEGY=${2:-clear_allowed_groups}
+STRATEGY=${2:-clear_mu_auth_allowed_groups}
 DURATION=$3
 
 ESCAPED_GROUPS=$(printf '%s' "$ALLOWED_GROUPS" | sed 's/"/\\"/g')

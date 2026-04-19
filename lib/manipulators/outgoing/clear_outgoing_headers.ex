@@ -16,7 +16,7 @@ defmodule Manipulators.Outgoing.ClearOutgoingHeaders do
       |> List.keydelete("mu-auth-sudo", 0)
       |> List.keydelete("mu-unauthorized", 0)
       # Session control headers (read by response manipulators before this runs)
-      |> List.keydelete("mu-auth-reinstate-session", 0)
+      |> List.keydelete("mu-reinstate-session", 0)
       |> List.keydelete("mu-session-delivery-mode", 0)
       |> List.keydelete("mu-session-valid-until", 0)
       |> List.keydelete("set-cookie", 0)

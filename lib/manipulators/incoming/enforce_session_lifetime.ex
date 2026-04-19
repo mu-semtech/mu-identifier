@@ -12,7 +12,7 @@ defmodule Manipulators.Incoming.EnforceSessionLifetime do
 
     if session_lifetime_expires_at && session_lifetime_expires_at < now do
       {headers, frontend_connection} =
-        SessionExpiration.handle(
+        SessionInvalidation.register(
           Application.get_env(:mu_identifier, :session_lifetime_strategy),
           frontend_connection,
           headers,

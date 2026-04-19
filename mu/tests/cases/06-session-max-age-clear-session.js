@@ -4,7 +4,7 @@ import { request, assertStatus, assertHasHeader } from '../helpers.js';
 const PAST_TIMESTAMP = '1000';
 const FUTURE_TIMESTAMP = String(Math.floor(Date.now() / 1000) + 3600);
 
-describe('Session max age (clear_session strategy)', () => {
+describe('Session max age (clear_mu_session_id strategy)', () => {
   it('includes Mu-Session-Lifetime-Expires-In when a session valid-until is set', async () => {
     const response = await request('/test', {
       headers: { 'x-test-response-mu-session-valid-until': FUTURE_TIMESTAMP }

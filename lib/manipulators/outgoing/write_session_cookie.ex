@@ -7,12 +7,8 @@ defmodule Manipulators.Outgoing.WriteSessionCookie do
 
   @impl true
   def headers(headers, {frontend_connection, backend_connection}) do
-    skip_session_write =
-      frontend_connection.assigns[:mu_unauthorized] == true &&
-        frontend_connection.assigns[:reinstate_revoked_session] != true
-
     frontend_connection =
-      if frontend_connection.assigns[:session_delivery_mode] == :cookie && !skip_session_write do
+      if frontend_connection.assigns[:session_delivery_mode] == :cookie do
         previous = frontend_connection.assigns[:previous_session_state]
         current = %{
           session_delivery_mode: frontend_connection.assigns[:session_delivery_mode],

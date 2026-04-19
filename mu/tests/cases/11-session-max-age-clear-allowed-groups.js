@@ -5,7 +5,7 @@ import { backend } from '../mock-backend.js';
 const PAST_TIMESTAMP = '1000';
 const groups = '[{"name":"admin","variables":[]}]';
 
-describe('Session max age (clear_allowed_groups strategy)', () => {
+describe('Session max age (clear_mu_auth_allowed_groups strategy)', () => {
   it('preserves the session id when the max age is exceeded', async () => {
     const response1 = await request('/test', {
       headers: {

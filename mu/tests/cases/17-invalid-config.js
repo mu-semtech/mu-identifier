@@ -18,7 +18,7 @@ describe('invalid configuration', () => {
     await new Promise(r => setTimeout(r, STARTUP_WAIT_MS));
   });
 
-  it('refuses to start when INVALID_SESSION_STRATEGY is set to clear_allowed_groups', async () => {
+  it('refuses to start when INVALID_SESSION_STRATEGY is set to clear_mu_auth_allowed_groups', async () => {
     assert(!await identifierAcceptsConnections(), 'identifier should not accept connections with an invalid configuration');
   });
 });

@@ -18,7 +18,7 @@ defmodule Manipulators.Incoming.EnforceSessionKeepalive do
     if keepalive_seconds && session_last_activity_at &&
          now - session_last_activity_at > keepalive_seconds do
       {headers, frontend_connection} =
-        SessionExpiration.handle(
+        SessionInvalidation.register(
           Application.get_env(:mu_identifier, :session_keepalive_strategy),
           frontend_connection,
           headers,

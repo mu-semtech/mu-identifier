@@ -59,6 +59,11 @@
             "command": "^docker compose run --rm --no-deps mocha node /tests/summarize\\.js$"
           },
           {
+            "name": "read-identifier-logs",
+            "comment": "Read identifier logs after a failed test",
+            "command": "^docker logs tests-identifier-1$"
+          },
+          {
             "name": "teardown",
             "comment": "Tear down the test stack",
             "command": "^docker compose down$"

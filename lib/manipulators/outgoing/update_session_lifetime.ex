@@ -9,49 +9,56 @@ defmodule Manipulators.Outgoing.UpdateSessionLifetime do
 
   @impl true
   def headers(headers, {frontend_connection, backend_connection}) do
-    skip_session_write =
-      frontend_connection.assigns[:mu_unauthorized] == true &&
-        frontend_connection.assigns[:reinstate_revoked_session] != true
+    # TODO: Perhaps we should (optionally?) warn when we are hitting the session lifetime AND there's no strategy defined to handle that.
 
-    if skip_session_write do
-      {headers, {frontend_connection, backend_connection}}
-    else
-      now = System.os_time(:second)
+    # TODO: Verify we are setting the lifetime in the session
 
-      default_valid_until =
-        case Application.get_env(:mu_identifier, :default_session_lifetime_seconds) do
-          nil -> nil
-          seconds -> now + seconds
-        end
+    headers = List.keydelete(headers, "mu-session-lifetime-expires-in", 0)
 
-      original_valid_until = frontend_connection.assigns[:session_lifetime_expires_at]
-      reinstating = frontend_connection.assigns[:reinstate_revoked_session]
-      session_revocation_reasons = frontend_connection.assigns[:session_revocation_reasons] || []
+    now = System.os_time(:second)
+    was_unauthorized = SessionInvalidation.query( frontend_connection, { :_, :unauthorized } )
+    reinstate_revoked_session = frontend_connection.assigns[:reinstate_revoked_session] == true
 
-      valid_until =
-        case List.keyfind(headers, "mu-session-valid-until", 0) do
-          {_key, value} ->
-            String.to_integer(value)
+    default_valid_until =
+      case Application.get_env(:mu_identifier, :default_session_lifetime_seconds) do
+        nil -> nil
+        seconds -> now + seconds
+      end
 
-          nil ->
-            if reinstating && :session_lifetime_exceeded in session_revocation_reasons
-                 && original_valid_until && default_valid_until do
-              max(original_valid_until, default_valid_until)
-            else
-              original_valid_until || default_valid_until
-            end
-        end
+    original_valid_until = frontend_connection.assigns[:session_lifetime_expires_at]
+    revoked_for_session_lifetime = SessionInvalidation.query( frontend_connection, { :session_lifetime_exceeded, :unauthorized } )
 
-      frontend_connection = Plug.Conn.assign(frontend_connection, :session_lifetime_expires_at, valid_until)
+    backend_supplied_valid_until =
+      case List.keyfind(headers, "mu-session-valid-until", 0) do
+        { _key, value } ->
+          String.to_integer(value)
+        nil ->
+          false
+      end
 
-      headers =
-        case valid_until do
-          nil -> headers
-          _ -> [{"mu-session-lifetime-expires-in", Integer.to_string(valid_until - now)} | headers]
-        end
+    valid_until =
+      cond do
+        backend_supplied_valid_until ->
+          # Backend always wins
+          backend_supplied_valid_until
+        reinstate_revoked_session
+        && revoked_for_session_lifetime
+        && default_valid_until ->
+          # Asked to set it back up
+          default_valid_until
+        original_valid_until ->
+          original_valid_until
+        true -> nil
+      end
 
-      {headers, {frontend_connection, backend_connection}}
-    end
+    frontend_connection = Plug.Conn.assign( frontend_connection, :session_lifetime_expires_at, valid_until )
+    headers = if valid_until do
+        [ {"mu-session-lifetime-expires-in", Integer.to_string(valid_until - now)} | headers ]
+      else
+        headers
+      end
+
+    {headers, {frontend_connection, backend_connection}}
   end
 
   @impl true

@@ -10,8 +10,7 @@ defmodule Manipulators.Incoming.EnforceSessionRevocations do
     {headers, frontend_connection} =
       case RevocationStore.get_allowed_groups_revocation(allowed_groups_string) do
         {revoked_at, strategy} when revoked_at >= session_allowed_groups_set_at ->
-          SessionExpiration.handle(strategy, frontend_connection, headers, :allowed_groups_revoked)
-
+          SessionInvalidation.register(strategy, frontend_connection, headers, :allowed_groups_revoked)
         _ ->
           {headers, frontend_connection}
       end
@@ -19,7 +18,7 @@ defmodule Manipulators.Incoming.EnforceSessionRevocations do
     {headers, frontend_connection} =
       case RevocationStore.get_session_id_revocation(mu_session_id) do
         nil -> {headers, frontend_connection}
-        strategy -> SessionExpiration.handle(strategy, frontend_connection, headers, :session_id_revoked)
+        strategy -> SessionInvalidation.register(strategy, frontend_connection, headers, :session_id_revoked)
       end
 
     {headers, {frontend_connection, backend_connection}}

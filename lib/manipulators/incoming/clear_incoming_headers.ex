@@ -30,7 +30,7 @@ defmodule Manipulators.Incoming.ClearIncomingHeaders do
       |> List.keydelete("cookie", 0)
       |> List.keydelete("mu-auth-token", 0)
       |> List.keydelete("mu-call-id-trail", 0)
-      |> List.keydelete("mu-auth-reinstate-session", 0)
+      |> List.keydelete("mu-reinstate-session", 0)
       |> List.keydelete("mu-session-delivery-mode", 0)
       |> List.keydelete("mu-session-valid-until", 0)
       |> List.keydelete("cache-keys", 0)

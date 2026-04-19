@@ -37,15 +37,15 @@ defmodule Manipulators.Incoming.ReadSessionFromJwt do
             {headers, {frontend_connection, backend_connection}}
 
           {:error, _} ->
+            if Application.get_env(:mu_identifier, :debug_session) do
+              IO.puts("Session authorization could not be decoded.")
+            end
             frontend_connection = Plug.Conn.assign(frontend_connection, :jwt_token_unreadable, true)
+
             {headers, {frontend_connection, backend_connection}}
         end
 
       _ ->
-        if Application.get_env(:mu_identifier, :debug_session) do
-          IO.puts("Session authorization could not be decoded.")
-        end
-
         {headers, {frontend_connection, backend_connection}}
     end
   end

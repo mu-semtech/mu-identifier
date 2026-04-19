@@ -6,7 +6,7 @@ defmodule Manipulators.Incoming.HandleInvalidCredentials do
     cond do
       frontend_connection.assigns[:session_cookie_unreadable] ->
         {headers, frontend_connection} =
-          SessionExpiration.handle(
+          SessionInvalidation.register(
             Application.get_env(:mu_identifier, :invalid_session_strategy),
             frontend_connection,
             headers,
@@ -17,7 +17,7 @@ defmodule Manipulators.Incoming.HandleInvalidCredentials do
 
       frontend_connection.assigns[:jwt_token_unreadable] ->
         {headers, frontend_connection} =
-          SessionExpiration.handle(
+          SessionInvalidation.register(
             Application.get_env(:mu_identifier, :invalid_jwt_token_strategy),
             frontend_connection,
             headers,

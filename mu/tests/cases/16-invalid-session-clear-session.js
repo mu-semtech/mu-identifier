@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { request, assertStatus, parseCookie } from '../helpers.js';
 
-describe('Invalid session cookie (clear_session strategy)', () => {
+describe('Invalid session cookie (clear_mu_session_id strategy)', () => {
   it('returns 200 and issues a new session when the cookie cannot be decrypted', async () => {
     const response = await request('/test', {
       headers: { cookie: 'proxy_session=invalid-garbage' }

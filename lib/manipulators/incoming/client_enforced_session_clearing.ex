@@ -11,7 +11,11 @@ defmodule Manipulators.Incoming.ClientEnforcedSessionClearing do
     requested_session_clearing = List.keymember?(headers, "mu-session-clear", 0)
 
     if allow_session_clearing && requested_session_clearing do
-      { headers, frontend_connection } = SessionExpiration.handle(:clear_session, frontend_connection, headers, nil)
+      frontend_connection =
+        frontend_connection
+        |> Plug.Conn.assign(:user_cleared_mu_session_id, frontend_connection.assigns[:mu_session_id])
+        |> Plug.Conn.assign(:user_cleared_mu_auth_allowed_groups, frontend_connection.assigns[:mu_auth_allowed_groups])
+        |> SessionInvalidation.reset_session()
 
       { headers, {frontend_connection, backend_connection} }
     else

@@ -3,72 +3,107 @@ defmodule Manipulators.Incoming.AddCustomRequestHeaders do
 
   @impl true
   def headers(headers, {frontend_connection, backend_connection}) do
-    unauthorized = frontend_connection.assigns[:mu_unauthorized]
-    cleared_mu_session_id = frontend_connection.assigns[:cleared_mu_session_id]
-    cleared_mu_auth_allowed_groups = frontend_connection.assigns[:cleared_mu_auth_allowed_groups]
-    revoked_mu_session_id = frontend_connection.assigns[:revoked_mu_session_id]
-    revoked_mu_auth_allowed_groups = frontend_connection.assigns[:revoked_mu_auth_allowed_groups]
 
-    session_id_header =
-      if unauthorized do
-        {"revoked-mu-session-id", frontend_connection.assigns[:mu_session_id]}
-      else
-        {"mu-session-id", frontend_connection.assigns[:mu_session_id]}
-      end
-
-    new_headers =
-      [
-        session_id_header,
-        {"mu-call-id", Integer.to_string(Enum.random(0..1_000_000_000_000))}
-      ]
-      ++ (unauthorized && [{"mu-unauthorized", "true"}] || [])
-      ++ (cleared_mu_session_id && [{"cleared-mu-session-id", cleared_mu_session_id}] || [])
-      ++ (cleared_mu_auth_allowed_groups && [{"cleared-mu-auth-allowed-groups", cleared_mu_auth_allowed_groups}] || [])
-      ++ (revoked_mu_session_id && [{"revoked-mu-session-id", revoked_mu_session_id}] || [])
-      ++ (revoked_mu_auth_allowed_groups && [{"revoked-mu-auth-allowed-groups", revoked_mu_auth_allowed_groups}] || [])
-      ++ headers
-
-    authorization_groups = frontend_connection.assigns[:mu_auth_allowed_groups]
-
-    default_allowed_groups =
-      Application.get_env(:mu_identifier, :default_mu_auth_allowed_groups_header)
-
-    if Application.get_env(:mu_identifier, :log_incoming_allowed_groups) ||
-         Application.get_env(:mu_identifier, :log_allowed_groups) do
-      if authorization_groups do
-        IO.inspect(authorization_groups, label: "Incoming allowed groups")
-      else
-        IO.inspect(default_allowed_groups, label: "Incoming allowed groups are default")
-      end
+    # If the admin requests a forced clearing of the mu_session_id that means it cannot come back.  We do this first and
+    # we ignore other expected behaviour.  Session is gone, only audit trail available.
+    frontend_connection = if SessionInvalidation.query(frontend_connection, { :admin, :force_clear_mu_session_id }) do
+      SessionInvalidation.force_clear_mu_session_id(frontend_connection)
+    else
+      frontend_connection
     end
 
-    headers_with_authorization =
-      cond do
-        unauthorized && authorization_groups ->
-          [{"revoked-mu-auth-allowed-groups", authorization_groups} | new_headers]
+    # Then we handle regular session clearing, even when the session was already force-cleared
+    frontend_connection = if SessionInvalidation.query(frontend_connection, { :_, :clear_mu_session_id }) do
+      SessionInvalidation.clear_mu_session_id(frontend_connection)
+    else
+      frontend_connection
+    end
 
-        unauthorized ->
-          new_headers
+    # At this point we should clear the mu-auth-allowed-groups if that hasn't been done through session clearing
+    frontend_connection = cond do
+      SessionInvalidation.force_cleared_mu_session_id?(frontend_connection) -> frontend_connection
+      SessionInvalidation.cleared_mu_session_id?(frontend_connection) -> frontend_connection
+      SessionInvalidation.query(frontend_connection, { :_, :clear_mu_auth_allowed_groups }) ->
+        SessionInvalidation.clear_mu_auth_allowed_groups(frontend_connection)
+      true -> frontend_connection
+    end
 
-        authorization_groups == "CLEAR" ->
-          new_headers
+    # With the state of the assigns updated, we'll handle the unauthorized case based on what we know at that point.
+    # The backend can still recover a previous mu-session-id and we'll leave it be (always assigning a new mu-session-id
+    # to the backend request) until the backend chooses to reinstate or clear the session.  reinstating will by default
+    # reinstate the old mu-session-id but it could request to instate the new mu-session-id instead through a different
+    # header TODO: support the different header in the response.
+    # We look at the various cases separately here and then start merging them
+    frontend_connection = cond do
+      # We don't care specifically for force_cleared_mu_session_id as that's a nuclear option and we just want the
+      # session gone When the mu-session-id was cleared, we will pretend to have the new mu-session-id, but a backend
+      # could act on the previous-mu-session-id instead and recover with Mu-Reinstate-Session: previous to recover that
+      # session id with future extensions.
 
-        authorization_groups ->
-          [{"mu-auth-allowed-groups", authorization_groups} | new_headers]
+      # This is only special in the processing of the other direction
+      SessionInvalidation.query(frontend_connection, { :_, :unauthorized }) ->
+        SessionInvalidation.unauthorize(frontend_connection)
+      # SessionInvalidation.force_cleared_mu_session_id?(frontend_connection) ->
+      #   # like it didn't happen
+      #   frontend_connection
+      # SessionInvalidation.query(frontend_connection, { :_, :clear_mu_auth_allowed_groups }) ->
+      #   # like it didn't happen
+      true ->
+        frontend_connection
+    end
 
-        default_allowed_groups ->
-          [{"mu-auth-allowed-groups", default_allowed_groups} | new_headers]
+    # NOTE: both mu-auth-allowed-groups as well as revoked_mu_auth_allowed_groups are translated through CLEAR etc but only if their corresponding mu-session-id contains a value (otherwise they're presumed to be empty).
+    
+    # -- write out the headers -- #
+    # All assigns should now be set, it's merely setting the header when it's available.
 
-        true ->
-          new_headers
-      end
+    new_headers = [
+      { "mu-session-id", frontend_connection.assigns[:mu_session_id] },
+      { "mu-auth-allowed-groups", derive_effective_mu_auth_allowed_groups( frontend_connection ) },
+      { "cleared-mu-session-id", frontend_connection.assigns[:cleared_mu_session_id] },
+      { "cleared-mu-auth-allowed-groups", frontend_connection.assigns[:cleared_mu_auth_allowed_groups] },
+      { "force-cleared-mu-session-id", frontend_connection.assigns[:force_cleared_mu_session_id] },
+      { "force-cleared-mu-auth-allowed-groups", frontend_connection.assigns[:force_cleared_mu_auth_allowed_groups] },
+      { "user-cleared-mu-session-id", frontend_connection.assigns[:user_cleared_mu_session_id] },
+      { "user-cleared-mu-auth-allowed-groups", frontend_connection.assigns[:user_cleared_mu_auth_allowed_groups] },
+      { "revoked-mu-session-id", frontend_connection.assigns[:revoked_mu_session_id] },
+      { "revoked-mu-auth-allowed-groups", derive_effective_revoked_mu_auth_allowed_groups( frontend_connection ) },
+      { "mu-unauthorized", (SessionInvalidation.unauthorized?( frontend_connection ) && "true") || nil }
+    ]
+      |> Enum.filter( fn ({_header, value}) -> value != nil end )
+    
 
-    {headers_with_authorization, {frontend_connection, backend_connection}}
+    { new_headers ++ headers,
+      {frontend_connection, backend_connection} }
   end
-
+  
   @impl true
   def chunk(_, _), do: :skip
 
   @impl true
   def finish(_, _), do: :skip
+
+  defp derive_effective_revoked_mu_auth_allowed_groups( connection ) do
+    if connection.assigns[:revoked_mu_session_id] do
+      groups = connection.assigns[:revoked_mu_auth_allowed_groups]
+
+      case groups do
+        "CLEAR" -> nil
+        nil -> Application.get_env(:mu_identifier, :default_mu_auth_allowed_groups_header)
+        _ -> groups
+      end
+    else
+      nil
+    end
+  end
+
+  defp derive_effective_mu_auth_allowed_groups( connection ) do
+    groups = connection.assigns[:mu_auth_allowed_groups]
+
+    case groups do
+      "CLEAR" -> nil
+      nil -> Application.get_env(:mu_identifier, :default_mu_auth_allowed_groups_header)
+      _ -> groups
+    end
+  end
 end

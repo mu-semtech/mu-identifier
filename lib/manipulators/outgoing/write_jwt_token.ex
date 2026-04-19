@@ -8,14 +8,14 @@ defmodule Manipulators.Outgoing.WriteJwtToken do
 
   @impl true
   def headers(headers, {frontend_connection, backend_connection}) do
-    skip_session_write =
-      frontend_connection.assigns[:mu_unauthorized] == true &&
-        frontend_connection.assigns[:reinstate_revoked_session] != true
+    unauthorized = frontend_connection.assigns[:mu_unauthorized] == true
+    reinstate_revoked_session = frontend_connection.assigns[:reinstate_revoked_session] != true
+    skip_session_write = unauthorized && !reinstate_revoked_session
 
     mode = frontend_connection.assigns[:session_delivery_mode]
 
     {headers, frontend_connection} =
-      if mode in [:jwt_header, :jwt_body] && !skip_session_write do
+      if mode in [:jwt_header, :jwt_body] do
         previous = frontend_connection.assigns[:previous_session_state]
         current = %{
           session_delivery_mode: mode,

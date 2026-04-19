@@ -4,7 +4,7 @@
     {
       "documentation": {
         "command": "revoke-session",
-        "description": "Revoke a session URI.  Strategy is one of clear_allowed_groups (default) or clear_session.",
+        "description": "Revoke a session URI.  Strategy is one of clear_mu_auth_allowed_groups (default) or clear_mu_session_id.",
         "arguments": ["session-uri", "strategy", "persist-seconds"]
       },
       "environment": {
@@ -16,7 +16,7 @@
     {
       "documentation": {
         "command": "revoke-allowed-groups-string",
-        "description": "Revoke all sessions holding a specific allowed-groups string.  Strategy is one of clear_allowed_groups (default) or clear_session.",
+        "description": "Revoke all sessions holding a specific allowed-groups string.  Strategy is one of clear_mu_auth_allowed_groups (default) or clear_mu_session_id.",
         "arguments": ["allowed-groups-string", "strategy", "persist-seconds"]
       },
       "environment": {

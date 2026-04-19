@@ -34,12 +34,12 @@ defmodule MuIdentifier do
   end
 
   defp validate_config do
-    if Application.get_env(:mu_identifier, :invalid_session_strategy) == :clear_allowed_groups do
-      raise "INVALID_SESSION_STRATEGY cannot be set to clear_allowed_groups."
+    if Application.get_env(:mu_identifier, :invalid_session_strategy) == :clear_mu_auth_allowed_groups do
+      raise "INVALID_SESSION_STRATEGY cannot be set to clear_mu_auth_allowed_groups."
     end
 
-    if Application.get_env(:mu_identifier, :invalid_jwt_token_strategy) == :clear_allowed_groups do
-      raise "INVALID_JWT_TOKEN_STRATEGY cannot be set to clear_allowed_groups."
+    if Application.get_env(:mu_identifier, :invalid_jwt_token_strategy) == :clear_mu_auth_allowed_groups do
+      raise "INVALID_JWT_TOKEN_STRATEGY cannot be set to clear_mu_auth_allowed_groups."
     end
   end
 end

@@ -1,6 +1,6 @@
 #!/bin/sh
 SESSION_URI=$1
-STRATEGY=${2:-clear_allowed_groups}
+STRATEGY=${2:-clear_mu_auth_allowed_groups}
 DURATION=$3
 
 IDENTIFIER_IP=$(getent hosts identifier | awk '{print $1}')

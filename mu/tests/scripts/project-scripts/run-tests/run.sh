@@ -43,19 +43,19 @@ mu_identifier_script() {
 # Helper: revoke a session URI via the mu-cli script (same command end-users run)
 revoke_session() {
   SESSION_URI="$1"
-  STRATEGY="${2:-clear_allowed_groups}"
+  STRATEGY="${2:-clear_mu_auth_allowed_groups}"
   mu_identifier_script revoke-session "$SESSION_URI" "$STRATEGY"
 }
 
 # Helper: revoke all sessions holding the cached groups string via the mu-cli script
 revoke_groups_string() {
-  STRATEGY="${1:-clear_allowed_groups}"
+  STRATEGY="${1:-clear_mu_auth_allowed_groups}"
   mu_identifier_script revoke-allowed-groups-string "$GROUPS" "$STRATEGY"
 }
 
 record_result() {
   shift
-  "$@" || FAIL=1
+  "$@" || { FAIL=1; printf "\n--- mu-identifier logs ---\n"; host docker logs tests-identifier-1; printf "--- end mu-identifier logs ---\n"; }
 }
 
 run_spec_09() {
@@ -64,16 +64,16 @@ run_spec_09() {
   OUTPUT=$(capture_session)
   CLEAR_GROUPS_COOKIE=$(printf '%s\n' "$OUTPUT" | sed -n '1p')
   CLEAR_GROUPS_SESSION_ID=$(printf '%s\n' "$OUTPUT" | sed -n '2p')
-  revoke_session "$CLEAR_GROUPS_SESSION_ID" clear_allowed_groups
+  revoke_session "$CLEAR_GROUPS_SESSION_ID" clear_mu_auth_allowed_groups
 
   OUTPUT=$(capture_session)
   CLEAR_SESSION_COOKIE=$(printf '%s\n' "$OUTPUT" | sed -n '1p')
   CLEAR_SESSION_ID=$(printf '%s\n' "$OUTPUT" | sed -n '2p')
-  revoke_session "$CLEAR_SESSION_ID" clear_session
+  revoke_session "$CLEAR_SESSION_ID" clear_mu_session_id
 
   OUTPUT=$(capture_session)
   REVOKED_GROUPS_COOKIE=$(printf '%s\n' "$OUTPUT" | sed -n '1p')
-  revoke_groups_string clear_allowed_groups
+  revoke_groups_string clear_mu_auth_allowed_groups
 
   record_result 09-session-revocation.js \
     host docker compose run --rm --use-aliases \

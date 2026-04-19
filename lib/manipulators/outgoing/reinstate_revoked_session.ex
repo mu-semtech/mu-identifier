@@ -3,8 +3,9 @@ defmodule Manipulators.Outgoing.ReinstateRevokedSession do
 
   @impl true
   def headers(headers, {frontend_connection, backend_connection}) do
-    if List.keyfind(headers, "mu-auth-reinstate-session", 0) do
-      frontend_connection.assigns[:mu_session_id]
+
+    if List.keyfind(headers, "mu-reinstate-session", 0) do
+      frontend_connection.assigns[:revoked_mu_session_id]
       |> RevocationStore.reinstate_mu_session_id()
 
       frontend_connection = Plug.Conn.assign(frontend_connection, :reinstate_revoked_session, true)

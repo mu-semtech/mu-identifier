@@ -14,7 +14,7 @@ const CLEAR_SESSION_ID = process.env.CLEAR_SESSION_ID;
 const REVOKED_GROUPS_COOKIE = process.env.REVOKED_GROUPS_COOKIE;
 
 describe('Session revocation', function() {
-  describe('revoke session URI with clear_allowed_groups', function() {
+  describe('revoke session URI with clear_mu_auth_allowed_groups', function() {
     before(function() {
       if (!CLEAR_GROUPS_COOKIE) this.skip();
     });
@@ -26,7 +26,7 @@ describe('Session revocation', function() {
     });
   });
 
-  describe('revoke session URI with clear_session', function() {
+  describe('revoke session URI with clear_mu_session_id', function() {
     before(function() {
       if (!CLEAR_SESSION_COOKIE || !CLEAR_SESSION_ID) this.skip();
     });

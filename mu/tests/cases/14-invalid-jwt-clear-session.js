@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { request, assertStatus, parseCookie } from '../helpers.js';
 
-describe('Invalid JWT (clear_session strategy)', () => {
+describe('Invalid JWT (clear_mu_session_id strategy)', () => {
   it('returns 200 and issues a new session when the JWT is invalid', async () => {
     const response = await request('/test', {
       headers: { authorization: 'Bearer bad-token' }
