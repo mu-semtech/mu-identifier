@@ -4,7 +4,7 @@ defmodule Proxy.Mixfile do
   def project do
     [app: :mu_identifier,
      version: "1.11.0",
-     elixir: "~> 1.7",
+     elixir: "~> 1.20",
      deps: deps()]
   end
 
