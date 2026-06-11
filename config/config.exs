@@ -81,7 +81,22 @@ config :mu_identifier,
   invalid_jwt_token_strategy: CH.system_atom("INVALID_JWT_TOKEN_STRATEGY", :unauthorized),
   idle_timeout: CH.system_integer("IDLE_TIMEOUT", 300_000),
   max_url_length: CH.system_integer("MAX_URL_LENGTH", 10_000),
-  override_vary_header: System.get_env("OVERRIDE_VARY_HEADER")
+  override_vary_header: System.get_env("OVERRIDE_VARY_HEADER"),
+
+  # request logging
+  log_outgoing_headers: CH.system_boolean("LOG_OUTGOING_HEADERS"),
+  log_outgoing_headers_connections: CH.system_boolean("LOG_OUTGOING_HEADERS_CONNECTIONS"),
+  log_outgoing_chunk: CH.system_boolean("LOG_OUTGOING_CHUNK"),
+  log_outgoing_chunk_connections: CH.system_boolean("LOG_OUTGOING_CHUNK_CONNECTIONS"),
+  log_outgoing_finish: CH.system_boolean("LOG_OUTGOING_FINISH"),
+  log_outgoing_finish_connections: CH.system_boolean("LOG_OUTGOING_FINISH_CONNECTIONS"),
+  log_incoming_headers: CH.system_boolean("LOG_INCOMING_HEADERS"),
+  log_incoming_headers_connections: CH.system_boolean("LOG_INCOMING_HEADERS_CONNECTIONS"),
+  log_incoming_chunk: CH.system_boolean("LOG_INCOMING_CHUNK"),
+  log_incoming_chunk_connections: CH.system_boolean("LOG_INCOMING_CHUNK_CONNECTIONS"),
+  log_incoming_finish: CH.system_boolean("LOG_INCOMING_FINISH"),
+  log_incoming_finish_connections: CH.system_boolean("LOG_INCOMING_FINISH_CONNECTIONS")
+
 
 config :jose,
   json_module: Jason

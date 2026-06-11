@@ -21,6 +21,7 @@ defmodule Proxy do
   plug(:dispatch)
 
   @request_manipulators [
+    Manipulators.Incoming.LogRequest,
     Manipulators.Incoming.ReadSessionFromCookie,
     Manipulators.Incoming.ReadSessionFromJwt,
     Manipulators.Incoming.ClientEnforcedSessionClearing,
@@ -33,6 +34,7 @@ defmodule Proxy do
     Manipulators.Incoming.AddCustomRequestHeaders
   ]
   @response_manipulators [
+    Manipulators.Outgoing.LogRequest,
     Manipulators.Outgoing.ReinstateRevokedSession,
     Manipulators.Outgoing.PutAllowedGroupsInSession,
     Manipulators.Outgoing.UpdateSessionLifetime,
