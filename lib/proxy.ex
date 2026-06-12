@@ -15,7 +15,7 @@ defmodule Proxy do
             key: "proxy_session",
             encryption_salt: { Proxy, :encryption_salt, [] },
             signing_salt: { Proxy, :signing_salt, [] },
-            key_length: 64 },
+            key_length: 32 }, # 32 bytes = 256bit which we need for the current cypher
     opts: { Proxy, :opts_from_environment }
 
   plug(:dispatch)
