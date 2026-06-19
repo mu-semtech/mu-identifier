@@ -23,7 +23,8 @@ defmodule MuIdentifier do
          compress: true,
          protocol_options: [
            idle_timeout: Application.get_env(:mu_identifier, :idle_timeout),
-           max_request_line_length: Application.get_env(:mu_identifier, :max_url_length)
+           max_request_line_length: Application.get_env(:mu_identifier, :max_url_length),
+           max_skip_body_length: :infinity
          ]
        ]}
     ]
