@@ -22,6 +22,7 @@ defmodule Proxy do
 
   @request_manipulators [
     Manipulators.Incoming.LogRequest,
+    Manipulators.Incoming.CustomSessionReader,
     Manipulators.Incoming.ReadSessionFromCookie,
     Manipulators.Incoming.ReadSessionFromJwt,
     Manipulators.Incoming.ClientEnforcedSessionClearing,
@@ -44,6 +45,7 @@ defmodule Proxy do
     Manipulators.Outgoing.PutCacheClearHeaders,
     Manipulators.Outgoing.AddCorsHeader,
     Manipulators.Outgoing.OverrideVaryHeader,
+    Manipulators.Outgoing.CustomSessionWriter,
     Manipulators.Outgoing.WriteSessionCookie,
     Manipulators.Outgoing.WriteJwtToken
   ]

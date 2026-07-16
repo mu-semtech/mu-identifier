@@ -366,3 +366,22 @@ Present in the request instead of `Mu-Auth-Allowed-Groups` when the `unauthorize
 
 When present in the backend response, reinstates the session: removes any active revocation entry for the current session URI, resets the session expiry so it is recalculated from `DEFAULT_SESSION_MAX_AGE_SECONDS` (or from an explicit `Mu-Session-Valid-Until` in the same response), and allows all session state writes to proceed normally for this response.  The header is not forwarded to the client.
 
+
+### Mounted files
+#### Custom session reader and custom session writer
+You can override reading and writing of the session.  This is done through a generic manipulator which runs after normal session read and one which runs after normal session write.
+
+The exact workings of these files is considered internal and it may change through minor versions.  Double-check upgrades!  However, if patterns emerge those could be considered as an extension point.  `lib/manipulators/incoming/read_session_from_jwt.ex` and `lib/manipulators/outgoing/write_jwt_token.ex` are good reading for changing the session.
+
+The reader must currently define the `Manipulators.Incoming.CustomSessionReader` module and the writer must define the `Manipulators.Outgoing.CustomSessionWriter` module.  Both must implement `@behaviour ProxyManipulator`.
+
+Note: if you process one of the headers that the identifier would want to process too, you may want to remove that header from the request to prevent others from hooking into it.
+
+At this point, the session information and timeout is written through =Plug.Conn.assign=, its values are:
+
+- `:session_delivery_mode`: Where the session is stored.  Currently of `:cookie`, `:jwt_header`, or `:jwt_body`.
+- `mu_session_id`: The session identifier
+- `mu_auth_allowed_groups`: The allowed groups
+- `session_allowed_groups_set_at`: When the allowed groups were set
+- `session_lifetime_expires_at`: When the session expires
+- `session_last_activity_at`: When the last activity of the session was recorded
