@@ -3,6 +3,8 @@ services:
     build: ../../
     env_file:
       - .test-identifier-env
+    volumes:
+      - ./custom-config:/config
   mocha:
     build:
       context: infrastructure

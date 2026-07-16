@@ -26,6 +26,20 @@ write_test_env() {
   fi
 }
 
+# Copy per-spec custom session reader/writer files into custom-config/ so the
+# identifier startup script picks them up.  Always clears first so tests that
+# don't need custom session handling start with no custom files mounted.
+write_custom_config() {
+  SPEC_BASE="$1"
+  rm -f "$APP/custom-config/custom_session_reader.ex" "$APP/custom-config/custom_session_writer.ex"
+  if [ -f "$APP/cases/${SPEC_BASE}-reader.ex" ]; then
+    cp "$APP/cases/${SPEC_BASE}-reader.ex" "$APP/custom-config/custom_session_reader.ex"
+  fi
+  if [ -f "$APP/cases/${SPEC_BASE}-writer.ex" ]; then
+    cp "$APP/cases/${SPEC_BASE}-writer.ex" "$APP/custom-config/custom_session_writer.ex"
+  fi
+}
+
 # Helper: capture cookie + session ID from a fresh session; prints cookie on line 1, session ID on line 2
 capture_session() {
   host docker compose run --rm --use-aliases --no-deps \
@@ -59,6 +73,8 @@ record_result() {
 }
 
 run_spec_09() {
+  write_test_env ""
+  write_custom_config ""
   host docker compose up -d identifier --force-recreate
 
   OUTPUT=$(capture_session)
@@ -92,6 +108,7 @@ print_summary() {
 run_spec_17() {
   printf "\n=== 17-invalid-config.js ===\n"
   write_test_env "$APP/cases/17-invalid-config.env"
+  write_custom_config "17-invalid-config"
   host docker compose up -d identifier --force-recreate
   record_result 17-invalid-config.js \
     host docker compose run --rm --use-aliases \
@@ -104,6 +121,7 @@ run_spec() {
   SPEC="$1"
   printf "\n=== %s ===\n" "$SPEC"
   write_test_env "$APP/cases/${SPEC%.js}.env"
+  write_custom_config "${SPEC%.js}"
   host docker compose up -d identifier --force-recreate
   record_result "$SPEC" \
     host docker compose run --rm --use-aliases \
@@ -141,6 +159,9 @@ else
     esac
   done
 fi
+
+: > "$APP/.test-identifier-env"
+rm -f "$APP/custom-config/custom_session_reader.ex" "$APP/custom-config/custom_session_writer.ex"
 
 print_summary
 host docker compose down
