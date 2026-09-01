@@ -373,6 +373,10 @@ You can override reading and writing of the session.  This is done through a gen
 
 The exact workings of these files is considered internal and it may change through minor versions.  Double-check upgrades!  However, if patterns emerge those could be considered as an extension point.  `lib/manipulators/incoming/read_session_from_jwt.ex` and `lib/manipulators/outgoing/write_jwt_token.ex` are good reading for changing the session.
 
+Disabling later processors is possible but the mechanics of doing so may change between versions.  Currently two are supported and they can be set for a specific request in the processor:
+- `Plug.Conn.assign(frontend_connection, :skip_cookie_session_reading, true)`: will disable reading the session from a cookie.
+- `Plug.Conn.assign(frontend_connection, :skip_jwt_session_reading, true)`: will disable reading the JWT token and will therefore not try to read the atuhorization header.  This header may still be removed during cleanup of the headers.
+
 The reader must currently define the `Manipulators.Incoming.CustomSessionReader` module and the writer must define the `Manipulators.Outgoing.CustomSessionWriter` module.  Both must implement `@behaviour ProxyManipulator`.
 
 Note: if you process one of the headers that the identifier would want to process too, you may want to remove that header from the request to prevent others from hooking into it.

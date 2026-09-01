@@ -2,6 +2,10 @@ defmodule Manipulators.Incoming.ReadSessionFromCookie do
   @behaviour ProxyManipulator
 
   @impl true
+  def headers(headers, {%{assigns: %{skip_cookie_session_reading: true}}, _} = connections) do
+    {headers, connections}
+  end
+
   def headers(headers, {frontend_connection, backend_connection}) do
     cond do
       match?({_key, "Bearer " <> _token},List.keyfind(headers, "authorization", 0)) ->

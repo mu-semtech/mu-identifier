@@ -2,6 +2,10 @@ defmodule Manipulators.Incoming.ReadSessionFromJwt do
   @behaviour ProxyManipulator
 
   @impl true
+  def headers(headers, {%{assigns: %{skip_jwt_session_reading: true}}, _} = connections) do
+    {headers, connections}
+  end
+
   def headers(headers, {frontend_connection, backend_connection}) do
     case List.keyfind(headers, "authorization", 0) do
       {_key, "Bearer " <> token} ->
